@@ -50,6 +50,7 @@ const MAGE=sprite(22,28,p=>{p(7,0,6,2,'#7a4ac8');p(5,2,10,3,'#7a4ac8');p(3,5,14,
 const CROWS=(s)=>sprite(20,30,p=>{p(9,8,2,22,'#7a4a20');p(1,12,18,2,'#7a4a20');p(5,3,10,8,'#d8c070');p(4,0,12,3,'#6a4a2a');p(2,3,16,1,'#6a4a2a');p(7,6,2,1,'#000');p(11,6,2,1,'#000');p(7,5,1,1,'#000');p(12,5,1,1,'#000');p(8,9,4,1,'#000');p(5,12,10,9,'#3a6aaa');p(7,14,2,2,'#c33');p(0,11,2,4,'#e8d070');p(18,11,2,4,'#e8d070');p(6,21,8,2,'#e8d070');p(4,8,1,2,'#e8d070');p(15,8,1,2,'#e8d070')},s);
 const SCARE=CROWS(2),SCARE_B=CROWS(5);
 const SLIME=sprite(20,16,p=>{p(6,0,8,2,'#b8ff6a');p(3,2,14,3,'#9cf05a');p(1,5,18,8,'#8ae84a');p(0,8,20,5,'#7ad83a');p(2,13,16,3,'#5ab82a');p(4,3,4,3,'#d8ffb0');p(14,6,3,5,'#7fd8ff');p(12,10,5,3,'#6ac8f0');p(6,7,2,3,'#123');p(12,7,2,3,'#123');p(6,7,1,1,'#fff');p(12,7,1,1,'#fff');p(8,11,4,1,'#2a6a1a');p(5,10,2,1,'#ff9ac0');p(13,10,2,1,'#ff9ac0')},1);
+const ATKGLOW=(()=>{const c=mk(96,96),g=c.getContext('2d'),gr=g.createRadialGradient(48,48,0,48,48,48);gr.addColorStop(0,'rgba(255,240,120,1)');gr.addColorStop(0.35,'rgba(255,216,77,.7)');gr.addColorStop(0.6,'rgba(77,243,255,.45)');gr.addColorStop(1,'rgba(0,0,0,0)');g.fillStyle=gr;g.fillRect(0,0,96,96);return c})();
 const SKY=(()=>{const c=mk(360,450),g=c.getContext('2d'),gr=g.createLinearGradient(0,0,0,450);gr.addColorStop(0,'#5a0a0a');gr.addColorStop(0.45,'#2a0505');gr.addColorStop(1,'#0a0000');g.fillStyle=gr;g.fillRect(0,0,360,450);g.fillStyle='rgba(255,90,40,.18)';g.beginPath();g.arc(300,40,60,0,TAU);g.fill();return c})();
 const PUFF=(()=>{const c=mk(32,32),g=c.getContext('2d'),gr=g.createRadialGradient(16,16,0,16,16,16);gr.addColorStop(0,'rgba(25,18,18,1)');gr.addColorStop(1,'rgba(25,18,18,0)');g.fillStyle=gr;g.fillRect(0,0,32,32);return c})();
 const SMOKE=[];function drawSmoke(srcs,a=1){if(SMOKE.length<26&&Math.random()<0.25){const s=srcs[(Math.random()*srcs.length)|0];SMOKE.push({x:s[0]+Math.random()*10,y:s[1],t:0,src:srcs})}
@@ -165,11 +166,11 @@ const SL={x:250,y:310};async function slimeMeet(){lock=true;tip='';noise(0.1,0.1
 async function scarecrowTalk(){if(flags.won){await say('허수아비는 장렬히 쓰러져 있다. 수고했어 허수아비.');return}lock=true;tip='';await say('......','허수아비');await say("(팻말: '연습용 허수아비 - 임시. 진짜 몬스터 준비중')");await say('허수아비가 이쪽을 노려보는 것 같다...!');
  noise(0.15,0.2);for(let i=0;i<3;i++){fadeA=1;await wait(0.08);fadeA=0;await wait(0.08)}startBattle()}
 // ---------- battle ----------
-let B=null;const IDLE=['* 젤리 슬라임이 말랑말랑 흔들린다.','* 달콤한 포도 냄새가 난다.','* 슬라임이 통통 튀며 눈치를 본다.','* 멀리서 까마귀가 운다. 까악.'];
+let B=null,LV=1,EXP=0,PMAX=20;const IDLE=['* 젤리 슬라임이 말랑말랑 흔들린다.','* 달콤한 포도 냄새가 난다.','* 슬라임이 통통 튀며 눈치를 본다.','* 멀리서 까마귀가 운다. 까악.'];
 let INV=[{n:'콜라',c:2,h:10,m:'* 콜라를 마셨다! 크으~ 이 맛이야! HP 10 회복.'},{n:'유통기한 지난 삼각김밥',c:1,h:6,m:'* 삼각김밥을 먹었다. ...약간 시큼하다. HP 6 회복.'},{n:'엄마표 잔소리 사탕',c:1,h:99,m:'* "취업은?" 맛이 난다. 정신이 번쩍! HP 전부 회복.'}],INV0=null;
 const curDef=()=>B.taunt||B.poke>0?0:2;
-function startBattle(){scene='battle';lock=true;dlg=null;B={hp:70,max:70,def:2,taunt:false,php:20,pmax:20,phase:'menu',sel:0,subSel:0,sub:null,turn:0,bul:[],soul:{x:180,y:300,inv:0},notes:null,booms:[],pops:[],shake:0,flash:0,idle:IDLE[0],et:0,
- poke:0,sticky:false,wob:0};if(!INV0)INV0=JSON.stringify(INV);INV=JSON.parse(INV0);B.items=INV;beep(220,0.2)}
+function startBattle(){scene='battle';lock=true;dlg=null;B={hp:70,max:70,def:2,taunt:false,php:PMAX,pmax:PMAX,phase:'menu',sel:0,subSel:0,sub:null,turn:0,bul:[],soul:{x:180,y:300,inv:0},notes:null,booms:[],pops:[],shake:0,flash:0,idle:IDLE[0],et:0,
+ poke:0,sticky:false,wob:0};if(!INV0)INV0=JSON.stringify(INV);INV=JSON.parse(INV0);B.items=INV;enemyTurn();B.pk=5;if(!flags.tut){flags.tut=1;B.phase='text';say('* 빛나는 부메랑을 잡으면 공격할 수 있다!\n* 박자에 맞춰 누르면 더 강하다.').then(()=>{if(B)B.phase='enemy'})}beep(220,0.2)}
 const MENU=['싸우기','기타','아이템','도망'];const ETC=['살펴보기','도발','숨 고르기','찌르보기','한입 먹어보기'];
 async function btext(t){B.phase='text';await say(t)}
 async function choose(){const s=B.sel;beep(700,0.05);
@@ -183,21 +184,22 @@ async function chooseSub(){const i=B.subSel;
   if(i===2){const h=Math.min(4,B.pmax-B.php);B.php+=h;beep(520,0.15,'triangle');await btext(`* 후-하... 숨을 골랐다. HP ${h} 회복.`);enemyTurn()}
   if(i===3){B.poke=2;B.wob=0.8;beep(400,0.2,'sine',0.06,-200);await btext('* 손가락으로 쿡 찔러보았다.\n* 너무 말랑하다...\n* 슬라임의 DEF가 2턴간 내려갔다!');enemyTurn()}
   if(i===4){const h=Math.min(5,B.pmax-B.php);B.php+=h;B.sticky=true;beep(600,0.1,'triangle');await btext(`* 한입 베어 물었다. 포도맛이다! HP ${h} 회복.\n* ...근데 손이 끈적끈적해졌다. (다음 턴 이동 느려짐)`);enemyTurn()}}
- else{const it=B.items[i];if(!it||it.c<=0){beep(120,0.1);return}it.c--;B.php=Math.min(B.pmax,B.php+it.h);beep(520,0.1,'triangle');setTimeout(()=>beep(780,0.12,'triangle'),100);await btext(it.m);enemyTurn()}}
+ else{const it=B.items[i];if(!it||it.c<=0){beep(120,0.1);return}it.c--;B.php=Math.min(B.pmax,B.php+it.h);beep(520,0.1,'triangle');setTimeout(()=>beep(780,0.12,'triangle'),100);await btext(it.m);resume()}}
+function resume(){B.phase='enemy';B.bul=B.bul.filter(b=>b.k==='mini');B.soul.inv=0.6}
 const BEAT=0.5,NOTEB=[2,3,4,4.5],LINEX=70,NSPD=150;
 function startRhythm(){B.phase='rhythm';B.notes={t0:gt+0.4,beat:0,list:NOTEB.map(b=>({t:0,b,j:null})),done:false,total:0};for(const n of B.notes.list)n.t=B.notes.t0+n.b*BEAT}
 function judge(){const r=B.notes;let best=null,bd=9;for(const n of r.list)if(!n.j){const d=Math.abs(gt-n.t);if(d<bd){bd=d;best=n}}if(!best||bd>0.25)return;hitNote(best,bd<0.07?'PERFECT':bd<0.14?'GOOD':'MISS')}
 function hitNote(n,j){n.j=j;const base=j==='PERFECT'?8:j==='GOOD'?5:1,dmg=j==='MISS'?1:Math.max(1,base-curDef());B.notes.total+=dmg;
  B.booms.push({t:0,strong:j!=='MISS',big:j==='PERFECT',dmg,done:false});B.pops.push({x:LINEX,y:250,t:0,s:j,c:j==='PERFECT'?'#ffd84d':j==='GOOD'?'#7df':'#888'});beep(j==='MISS'?200:j==='GOOD'?660:990,0.08,'square',0.07)}
-async function afterAttack(){const d=B.notes.total;B.notes=null;await btext(`* 부메랑 공격! 총 ${d} 데미지!`+(curDef()===0?'\n* (말랑해서 방어력 0!)':''));B.taunt=false;if(B.poke>0)B.poke--;
- if(B.hp<=0){B.phase='win';jingle();return}enemyTurn()}
+async function afterAttack(){const d=B.notes.total;B.notes=null;await btext(`* 부메랑 공격! 총 ${d} 데미지!`);B.taunt=false;if(B.poke>0)B.poke--;
+ if(B.hp<=0){B.phase='win';jingle();return}resume()}
 const BX={x:96,y:222,w:168,h:150};
-function enemyTurn(){B.phase='enemy';B.et=0;B.bul.length=0;B.pat=B.turn%3;B.turn++;B.dur=B.taunt?7:6;B.spawn=0;B.soul.x=BX.x+BX.w/2;B.soul.y=BX.y+BX.h/2;B.stk=B.sticky;B.sticky=false;
+function enemyTurn(){B.phase='enemy';B.et=0;B.bul.length=0;B.pat=B.turn%3;B.turn++;B.dur=6;B.atk=null;B.spawn=0;B.soul.x=BX.x+BX.w/2;B.soul.y=BX.y+BX.h/2;B.stk=B.sticky;B.sticky=false;
  if(B.pat===2){const n=B.taunt?5:3;for(let i=0;i<n;i++){const a=Math.random()*TAU,sp=(65+i*8)*(B.taunt?1.4:1);B.bul.push({k:'mini',x:BX.x+20+i*30,y:BX.y+12,vx:Math.cos(a)*sp,vy:Math.abs(Math.sin(a))*sp+30,w:12,h:9})}}}
 function updEnemy(dt){const s=B.soul,hard=B.taunt?1.5:1;B.et+=dt;B.spawn-=dt;const spd=B.stk?55:110;
  const v=dirVec();s.x+=v.x*spd*dt+dragD.x*(B.stk?0.5:1);s.y+=v.y*spd*dt+dragD.y*(B.stk?0.5:1);s.x=clamp(s.x,BX.x+8,BX.x+BX.w-8);s.y=clamp(s.y,BX.y+8,BX.y+BX.h-8);
  const FL=BX.y+BX.h;
- if(B.et<B.dur-0.8&&B.spawn<=0&&B.bul.length<70){
+ if(B.spawn<=0&&B.bul.length<70){
   if(B.pat===0){B.spawn=0.2/hard;B.bul.push({k:'drop',x:BX.x+4+Math.random()*(BX.w-12),y:BX.y-8,vx:0,vy:(70+Math.random()*40)*hard,w:7,h:7})}
   else if(B.pat===1){B.spawn=1.5/hard;B.bul.push({k:'land',x:BX.x+10+Math.random()*(BX.w-36),y:BX.y-16,vx:0,vy:150*hard,w:18,h:12})}
   else{B.spawn=1.4/hard;B.bul.push({k:'drop',x:BX.x+4+Math.random()*(BX.w-12),y:BX.y-8,vx:0,vy:80*hard,w:7,h:7})}}
@@ -206,16 +208,19 @@ function updEnemy(dt){const s=B.soul,hard=B.taunt?1.5:1;B.et+=dt;B.spawn-=dt;con
   if(b.k==='land'&&b.y+b.h>=FL){B.bul.splice(i,1);B.shake=0.12;beep(120,0.1,'sine',0.08);const cx=b.x+b.w/2;for(const d of [-1,1])B.bul.push({k:'wave',x:cx-5,y:FL-14,vx:d*100*hard,vy:0,w:10,h:14});continue}
   if(b.y>FL+20||b.x<BX.x-130||b.x>BX.x+BX.w+130){B.bul.splice(i,1);continue}
   if(s.inv<=0&&s.x+4>b.x&&s.x-4<b.x+b.w&&s.y+4>b.y&&s.y-4<b.y+b.h){B.php-=B.taunt?4:3;s.inv=1;B.shake=0.25;beep(150,0.15,'sawtooth',0.08);if(B.php<=0){B.php=0;B.phase='lose';beep(110,0.6,'triangle',0.1,-60);return}}}
- s.inv-=dt;if(B.et>=B.dur){B.bul.length=0;B.phase='menu';B.taunt=false;B.stk=false;B.idle=IDLE[(Math.random()*IDLE.length)|0]}}
-function endBattle(won){scene='map';mapId='gate';hero.x=180;hero.y=330;hero.dir=1;B=null;lock=false;tip='';if(won){flags.won=1;INV.push({n:'포도 젤리',c:1,h:12,m:'* 포도 젤리를 먹었다. 말랑말랑 달콤! HP 12 회복.'});INV0=JSON.stringify(INV);(async()=>{lock=true;await say('젤리 슬라임이 포도 젤리가 되었다.');jingle();await say('★ 포도 젤리를 획득했다! ★');await say('...아까까지 살아 움직이던 거잖아. 먹어도 되나?','{name}');await say('- 프로토타입은 여기까지! to be continued... -');lock=false})()}}
+ s.inv-=dt;if(B.et>=B.dur){B.bul=B.bul.filter(b=>b.k!=='mini');B.et=0;B.pat=B.turn%3;B.turn++;if(B.pat===2){for(let i=0;i<3;i++){const a=Math.random()*TAU,sp=65+i*8;B.bul.push({k:'mini',x:BX.x+20+i*30,y:BX.y+12,vx:Math.cos(a)*sp,vy:Math.abs(Math.sin(a))*sp+30,w:12,h:9})}}}
+ B.pk-=dt;if(B.pk<=0&&!B.atk){B.pk=12;const L=Math.random()<0.5;B.atk={x:L?BX.x-20:BX.x+BX.w,y:BX.y+20+Math.random()*(BX.h-50),vx:(L?1:-1)*(42+Math.random()*12),hl:!flags.tutPk};flags.tutPk=1;beep(1200,0.08,'square',0.04);setTimeout(()=>beep(1600,0.08,'square',0.04),90)}
+ const k=B.atk;if(k){k.x+=k.vx*dt;if(k.x<BX.x-24||k.x>BX.x+BX.w+4){B.atk=null;B.pops.push({x:180,y:212,t:0,s:'놓쳤다...',c:'#888'})}
+  else if(Math.abs(s.x-(k.x+10))<16&&Math.abs(s.y-(k.y+10))<16){B.atk=null;B.bul.length=0;jingle();startRhythm()}}}
+function endBattle(won){scene='map';mapId='gate';hero.x=180;hero.y=330;hero.dir=1;B=null;lock=false;tip='';if(won){flags.won=1;INV.push({n:'포도 젤리',c:1,h:12,m:'* 포도 젤리를 먹었다. 말랑말랑 달콤! HP 12 회복.'});INV0=JSON.stringify(INV);(async()=>{lock=true;await say('젤리 슬라임이 포도 젤리가 되었다.');jingle();await say('★ 포도 젤리를 획득했다! ★');EXP+=10;await say(`EXP +10 (${EXP}/${LV*10})`);if(EXP>=LV*10){EXP-=LV*10;LV++;PMAX+=5;jingle();await say(`★ 레벨이 올랐다! LV ${LV} ★\n최대 HP +5 (${PMAX}), HP 전부 회복!`)}await say('...아까까지 살아 움직이던 거잖아. 먹어도 되나?','{name}');await say('- 프로토타입은 여기까지! to be continued... -');lock=false})()}}
 function bTap(p){ // returns true if consumed
  if(B.phase==='menu'){if(p.y>396&&p.y<440){B.sel=clamp(Math.floor((p.x-4)/88),0,3);choose();return true}}
- if(B.phase==='sub'){const n=B.sub==='etc'?5:B.items.length;for(let i=0;i<n;i++){const y=244+i*26;if(p.y>y-14&&p.y<y+14&&p.x>20&&p.x<340){B.subSel=i;chooseSub();return true}}if(p.y>396){B.phase='menu';return true}}
+ if(B.phase==='sub'){const n=B.sub==='etc'?5:B.items.length;for(let i=0;i<n;i++){const y=244+i*26;if(p.y>y-14&&p.y<y+14&&p.x>20&&p.x<340){B.subSel=i;chooseSub();return true}}if(p.y>396){resume();return true}}
  return false}
 function updBattle(dt){B.shake=Math.max(0,B.shake-dt);B.wob=Math.max(0,B.wob-dt);B.flash=Math.max(0,B.flash-dt);for(const p of B.pops)p.t+=dt;B.pops=B.pops.filter(p=>p.t<0.9);
  const tp=tapUp;
- if(B.phase==='menu'){if(pr.L){B.sel=(B.sel+3)%4;beep(500,0.03)}if(pr.R){B.sel=(B.sel+1)%4;beep(500,0.03)}if(pr.A)choose();else if(tp)bTap(tp)}
- else if(B.phase==='sub'){const n=B.sub==='etc'?5:B.items.length;if(pr.U){B.subSel=(B.subSel+n-1)%n;beep(500,0.03)}if(pr.D){B.subSel=(B.subSel+1)%n;beep(500,0.03)}if(pr.B)B.phase='menu';else if(pr.A)chooseSub();else if(tp)bTap(tp)}
+ if(B.phase==='enemy'&&(pr.B||(tp&&tp.y>396))){B.phase='sub';B.sub='item';B.subSel=0;beep(500,0.05)}
+ else if(B.phase==='sub'){const n=B.sub==='etc'?5:B.items.length;if(pr.U){B.subSel=(B.subSel+n-1)%n;beep(500,0.03)}if(pr.D){B.subSel=(B.subSel+1)%n;beep(500,0.03)}if(pr.B)resume();else if(pr.A)chooseSub();else if(tp)bTap(tp)}
  else if(B.phase==='rhythm'){const r=B.notes;if(r){while(gt>=r.t0+r.beat*BEAT&&r.beat<=6){beep(r.beat<2?440:880,0.04,'square',r.beat<2?0.05:0.035);r.beat++}
    if(pr.A||tp)judge();for(const n of r.list)if(!n.j&&gt-n.t>0.25)hitNote(n,'MISS');
    if(!r.done&&r.list.every(n=>n.j)&&B.booms.length===0){r.done=true;afterAttack()}}}
@@ -233,8 +238,9 @@ function drawBattle(){const sx=B.shake>0?(Math.random()*6-3):0;
  // box
  if(B.phase==='enemy'){box(BX.x-3,BX.y-3,BX.w+6,BX.h+6);ctx.save();ctx.beginPath();ctx.rect(BX.x,BX.y,BX.w,BX.h);ctx.clip();
   for(const b of B.bul){if(b.k==='drop'){R(b.x+1,b.y,b.w-2,b.h,'#9cf05a');R(b.x,b.y+2,b.w,b.h-3,'#9cf05a');R(b.x+1,b.y+1,2,2,'#eaffd0')}else if(b.k==='wave'){R(b.x,b.y+6,b.w,8,'#7fd8ff');R(b.x+2,b.y,b.w-4,6,'#bfefff')}else ctx.drawImage(SLIME,b.x,b.y,b.w,b.h)}
-  const s=B.soul;if(!(s.inv>0&&Math.floor(gt*20)%2))ctx.drawImage(SOUL,s.x-12,s.y-17,24,28);if(B.stk){R(s.x-8,s.y+6,16,3,'#a46be8');R(s.x-6,s.y+9,2,3+Math.sin(gt*5)*1.5,'#a46be8');R(s.x+3,s.y+9,2,4,'#a46be8');T('끈적',s.x,s.y-22,9,'#c08aff','center')}ctx.restore();
-  T(B.taunt?'젤리 슬라임: (부글부글!)':['젤리 방울 비!','통통 점프! (위로 피해!)','꼬마 슬라임 분열!'][B.pat],180,208,12,'#aaa','center')}
+  const s=B.soul;if(!(s.inv>0&&Math.floor(gt*20)%2))if(B.atk){const k=B.atk,pu=0.75+Math.sin(gt*10)*0.25;ctx.globalCompositeOperation='lighter';ctx.globalAlpha=pu;ctx.drawImage(ATKGLOW,k.x-14,k.y-14,48,48);ctx.globalAlpha=1;ctx.globalCompositeOperation='source-over';ctx.save();ctx.translate(k.x+10,k.y+10);ctx.rotate(gt*9);ctx.drawImage(BOOM,-12,-12,24,24);ctx.restore();T('공격!',k.x+10,k.y-12,9,'#7ff','center','900');if(k.hl){const ay=k.y-34+Math.sin(gt*8)*4;T('▼',k.x+10,ay,16,'#ffd84d','center','900');T('잡아!',k.x+10,ay-16,11,'#fff','center','900');for(let i=0;i<4;i++){const a=gt*4+i*TAU/4;T('✦',k.x+10+Math.cos(a)*22,k.y+10+Math.sin(a)*22,9,i%2?'#7ff':'#ffd84d','center')}}}
+  ctx.drawImage(SOUL,s.x-12,s.y-17,24,28);if(B.stk){R(s.x-8,s.y+6,16,3,'#a46be8');R(s.x-6,s.y+9,2,3+Math.sin(gt*5)*1.5,'#a46be8');R(s.x+3,s.y+9,2,4,'#a46be8');T('끈적',s.x,s.y-22,9,'#c08aff','center')}ctx.restore();
+  T(['젤리 방울 비!','통통 점프! (위로 피해!)','꼬마 슬라임 분열!'][B.pat],180,208,12,'#aaa','center')}
  else{box(16,226,328,150);
   if(B.phase==='menu')T(B.idle,32,250,14);
   if(B.phase==='sub'){const L=B.sub==='etc'?ETC.map(x=>'* '+x):B.items.map(it=>`* ${it.n} x${it.c}`);L.forEach((l,i)=>{if(i===B.subSel)ctx.drawImage(SOUL,26,244+i*26-12,16,19);T(l,46,244+i*26,14,i===B.subSel?'#ffd84d':(B.sub==='item'&&B.items[i].c<=0?'#555':'#fff'))});T('B / X : 뒤로',332,362,10,'#777','right')}
@@ -245,10 +251,10 @@ function drawBattle(){const sx=B.shake>0?(Math.random()*6-3):0;
  if(dlg&&dlg.bt){let left=dlg.n;dlg.lines.forEach((l,i)=>{if(left<=0)return;T(l.slice(0,left),32,250+i*22,14);left-=l.length});if(dlg.n>=dlg.len&&Math.floor(gt*3)%2)T('▼',328,362,10)}
  for(const p of B.pops){ctx.globalAlpha=1-p.t/0.9;T(p.s,p.x,p.y-p.t*30,p.big?22:14,p.c,'center','900');ctx.globalAlpha=1}
  // hp & menu
- T(heroName,16,386,13);T('LV 1',110,386,13);T('HP',160,386,12);R(186,380,60,12,'#a00');R(186,380,60*B.php/B.pmax,12,'#ffd84d');T(`${B.php} / ${B.pmax}`,254,386,13);
- MENU.forEach((m,i)=>{const x=4+i*88,on=B.phase==='menu'&&B.sel===i;ctx.strokeStyle=on?'#ffd84d':'#ff9a3c';ctx.lineWidth=2;ctx.strokeRect(x+1,400,84,34);T(m,x+43,417,15,on?'#ffd84d':'#ff9a3c','center')});
+ T(heroName,16,386,13);T(`LV ${LV}`,110,386,13,'#ffd84d');T('HP',160,386,12);R(186,380,60,12,'#a00');R(186,380,60*B.php/B.pmax,12,'#ffd84d');T(`${B.php} / ${B.pmax}`,254,386,13);
+ ctx.strokeStyle='#ff9a3c';ctx.lineWidth=2;ctx.strokeRect(232,400,124,34);T('아이템 (B)',294,417,14,'#ff9a3c','center');T('★빛나는 부메랑을 잡으면 공격!',8,410,11,'#ffd84d');T(`슬라임 HP ${B.hp}/${B.max}`,8,426,11,'#9cf05a');
  if(B.phase==='win'||B.phase==='lose'){ctx.globalAlpha=Math.min(1,B.et*2);R(0,0,W,VH+10,'#000');ctx.globalAlpha=1;
-  if(B.phase==='win'){T('YOU WIN!',180,140,32,'#ffd84d','center','900');T('젤리 슬라임이 포도 젤리가 되었다.',180,200,14,'#fff','center');T('포도 젤리를 얻었다! (EXP는... 다음에)',180,230,12,'#aaa','center');T('부메랑이 무사히 돌아왔다.',180,256,13,'#aaa','center');ctx.drawImage(BOOM,166,280,28,28)}
+  if(B.phase==='win'){T('YOU WIN!',180,140,32,'#ffd84d','center','900');T('젤리 슬라임이 포도 젤리가 되었다.',180,200,14,'#fff','center');T('EXP +10  ·  포도 젤리를 얻었다!',180,230,12,'#aaa','center');T('부메랑이 무사히 돌아왔다.',180,256,13,'#aaa','center');ctx.drawImage(BOOM,166,280,28,28)}
   else{T('GAME OVER',180,140,32,'#f44','center','900');T(`${heroName}... 젤리한테 졌다고?`,180,200,14,'#fff','center');T('결의를 다지자. (콜라 마시고 싶다)',180,228,12,'#aaa','center');box(110,300,140,44);T('다시 하기',180,322,16,'#ffd84d','center')}
   if(B.et>0.8&&Math.floor(gt*2)%2)T('A / Z / 탭',180,380,11,'#888','center')}}
 // ---------- name ----------
@@ -296,7 +302,7 @@ function draw(){ctx.setTransform(2,0,0,2,0,0);ctx.imageSmoothingEnabled=false;R(
 let last=performance.now();function loop(t){const dt=Math.min(0.05,(t-last)/1000);last=t;try{update(dt)}catch(e){console.error(e)}draw();requestAnimationFrame(loop)}
 fit();fadeA=0;requestAnimationFrame(loop);
 // ---------- debug hook ----------
-window.__rpg={get s(){return{scene,mapId,lock,dlg:!!dlg,dlgDone:dlg?dlg.n>=dlg.len:false,hero:{x:hero.x,y:hero.y},sel:B&&B.sel,inv:INV.map(i=>i.n+'x'+i.c),pat:B&&B.pat,stk:B&&B.stk,poke:B&&B.poke,flags:{...flags},phase:B&&B.phase,mhp:B&&B.hp,php:B&&B.php,fade:!!fadeT,
+window.__rpg={get s(){return{scene,mapId,lock,dlg:!!dlg,dlgDone:dlg?dlg.n>=dlg.len:false,lv:LV,pmax:PMAX,hero:{x:hero.x,y:hero.y},sel:B&&B.sel,atk:B&&B.atk,soul:B&&B.soul,inv:INV.map(i=>i.n+'x'+i.c),pat:B&&B.pat,stk:B&&B.stk,poke:B&&B.poke,flags:{...flags},phase:B&&B.phase,mhp:B&&B.hp,php:B&&B.php,fade:!!fadeT,
  nextNote:B&&B.notes?Math.min(...B.notes.list.filter(n=>!n.j).map(n=>n.t-gt)):null}},
  skip(to){if(to==='battle'){nm.style.display='none';startBattle()}else if(to==='gate'){nm.style.display='none';scene='map';mapId='gate';hero.x=180;hero.y=220;lock=false;fadeA=0}},
  heal(){if(B)B.php=B.pmax}};

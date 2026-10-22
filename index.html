@@ -207,7 +207,7 @@ async function crosswalk2(){lock=true;tip='';flags.cross2=1;hero.dir=0;await say
  await say('...역시 그런 일이 생길 리가 없지. 이세계는 무슨.','{name}');await say('콜라나 사러 가자—','{name}');
  flags.sign={x:hero.x,y:-30};beep(1200,0.6,'sine',0.04,-900);const ty=hero.y-50;while(flags.sign.y<ty){await wait(0.016);flags.sign.y+=9}
  flags.sign.y=ty;noise(0.5,0.35);beep(90,0.4,'square',0.15,-50);shake=0.7;fx.push({k:'boom',x:hero.x,y:hero.y-70,t:0});hero.fallen=true;for(let i=0;i<5;i++)fx.push({k:'star',i,t:0});
- await wait(1.6);await fadeTo(1,1.2);fx.length=0;scene='black';await wait(0.6);await say('......');await say('...죽은 줄 알았는데...','{name}');
+ await wait(1.6);await fadeTo(1,1.2);fx.length=0;scene='black';await wait(0.6);await say('......');await say('...간판에 맞아서 죽은 줄 알았는데...','{name}');
  mapId='hall';scene='map';hero.fallen=false;flags.sign=null;hero.x=180;hero.y=324;hero.dir=1;flags.summon=1;fadeA=1;fadeC='#fff';beep(300,1.2,'sine',0.06,900);await fadeTo(0,1.4);
  await say('어.... 용사인가?','왕');await say('어.... 못생겼지만 그런가봅니다.','마법사');await say('......? (방금 뭐라고?)','{name}');
  await say('이 왕국에 몬스터가 쳐들어왔다, 당신이 우리를 구원해주어야 하네.','왕');await say('여기 최고의 생존자가 사용한 부메랑이라네. 잘 사용하시게나.','왕');

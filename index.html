@@ -212,7 +212,7 @@ async function crosswalk2(){lock=true;tip='';flags.cross2=1;hero.dir=0;await say
  mapId='hall';scene='map';hero.fallen=false;flags.sign=null;hero.x=180;hero.y=324;hero.dir=1;flags.summon=1;fadeA=1;fadeC='#fff';beep(300,1.2,'sine',0.06,900);await fadeTo(0,1.4);
  await say('어.... 용사인가?','왕');await say('어.... 못생겼지만 그런가봅니다.','마법사');await say('......? (방금 뭐라고?)','{name}');await say('뭐.... 최종보스보다는 잘생겼으니. 용사아니겠나. 껄껄껄','왕');await say('.......(뭔가 기분 나빠, 최종보스는 얼마나 못생겼길래.....)','{name}');
  await say('이 왕국에 몬스터가 쳐들어왔다, 당신이 우리를 구원해주어야 하네.','왕');await say('여기 최고의 생존자가 사용한 부메랑이라네. 잘 사용하시게나.','왕');
- flags.boom=1;jingle();await say('★ 부메랑을 획득했다! ★');flags.boom=0;await say('(부메랑...? 칼 같은 건 없나...?)','{name}');await say('아 추가적으로 콜라 2병을 주겠네.','왕');await say('(!!!! 콜라) 열심히 하겠습니다!!!!','{name}');await say('그래 성문 밖은 이미 몬스터 천지라네... 조심하게나.','왕');
+ flags.boom=1;jingle();await say('★ 부메랑을 획득했다! ★');flags.boom=0;await say('(부메랑...? 칼 같은 건 없나...?)','{name}');await say('아 추가적으로 콜라 2병을 주겠네.','왕');jingle();await say('★ 콜라 2병을 획득했다! ★');INV.unshift({n:'콜라',c:2,h:10,m:'* 콜라를 마셨다! 크으~ 이 맛이야! HP 10 회복.',t:1});INV0=JSON.stringify(INV);await say('(!!!! 콜라) 열심히 하겠습니다!!!!','{name}');await say('그래 성문 밖은 이미 몬스터 천지라네... 조심하게나.','왕');
  fadeC='#000';await fadeTo(1,0.8);flags.summon=0;mapId='gate';hero.x=180;hero.y=200;hero.dir=0;await fadeTo(0,0.8);banner={t:0,txt:'여행 시작'};jingle();await wait(2.2);lock=false;tip='저 말랑한 건 뭐지...?'}
 const SL={x:470,y:290,chase:false},SL_R=170,SL_SPD=60,GB={x:500,y:210,chase:false},GB_SPD=76;let lastMon='slime';
 async function goblinMeet(){lock=true;tip='';noise(0.12,0.15);beep(200,0.15,'sawtooth',0.06,200);await say('고블린 창병이 창을 휘두르며 달려든다!');
@@ -223,7 +223,7 @@ async function scarecrowTalk(){if(flags.won){await say('허수아비는 장렬�
  noise(0.15,0.2);for(let i=0;i<3;i++){fadeA=1;await wait(0.08);fadeA=0;await wait(0.08)}startBattle()}
 // ---------- battle ----------
 let B=null,LV=1,EXP=0,PMAX=20;const IDLE=['* 젤리 슬라임이 말랑말랑 흔들린다.','* 달콤한 포도 냄새가 난다.','* 슬라임이 통통 튀며 눈치를 본다.','* 멀리서 까마귀가 운다. 까악.'];
-let INV=[{n:'콜라',c:2,h:10,m:'* 콜라를 마셨다! 크으~ 이 맛이야! HP 10 회복.'},{n:'유통기한 지난 삼각김밥',c:1,h:6,m:'* 삼각김밥을 먹었다. ...약간 시큼하다. HP 6 회복.'},{n:'엄마표 잔소리 사탕',c:1,h:99,m:'* "취업은?" 맛이 난다. 정신이 번쩍! HP 전부 회복.'}],INV0=null;
+let INV=[{n:'유통기한 지난 삼각김밥',c:1,h:6,m:'* 삼각김밥을 먹었다. ...약간 시큼하다. HP 6 회복.'},{n:'엄마표 잔소리 사탕',c:1,h:99,m:'* "취업은?" 맛이 난다. 정신이 번쩍! HP 전부 회복.'}],INV0=null;
 const curDef=()=>B.taunt||B.poke>0?0:2;
 function startBattle(mon){if(mon)lastMon=mon;mon=lastMon;const HPT={slime:55,goblin:80,lizard:95,golem:110,dragon:300};scene='battle';lock=true;dlg=null;B={mon,hp:HPT[mon],max:HPT[mon],def:2,taunt:false,php:PMAX,pmax:PMAX,phase:'menu',sel:0,subSel:0,sub:null,turn:0,bul:[],soul:{x:180,y:300,inv:0},notes:null,booms:[],pops:[],shake:0,flash:0,idle:IDLE[0],et:0,
  poke:0,sticky:false,wob:0};if(!INV0)INV0=JSON.stringify(INV);INV=JSON.parse(INV0);B.items=INV;enemyTurn();B.pk=5;if(!flags.tut){flags.tut=1;B.phase='text';say('* 빛나는 부메랑을 잡으면 공격할 수 있다!\n* 박자에 맞춰 누르면 더 강하다.').then(()=>{if(B)B.phase='enemy'})}beep(220,0.2)}
@@ -240,7 +240,7 @@ async function chooseSub(){const i=B.subSel;
   if(i===2){const h=Math.min(4,B.pmax-B.php);B.php+=h;beep(520,0.15,'triangle');await btext(`* 후-하... 숨을 골랐다. HP ${h} 회복.`);enemyTurn()}
   if(i===3){B.poke=2;B.wob=0.8;beep(400,0.2,'sine',0.06,-200);await btext('* 손가락으로 쿡 찔러보았다.\n* 너무 말랑하다...\n* 슬라임의 DEF가 2턴간 내려갔다!');enemyTurn()}
   if(i===4){const h=Math.min(5,B.pmax-B.php);B.php+=h;B.sticky=true;beep(600,0.1,'triangle');await btext(`* 한입 베어 물었다. 포도맛이다! HP ${h} 회복.\n* ...근데 손이 끈적끈적해졌다. (다음 턴 이동 느려짐)`);enemyTurn()}}
- else{const it=B.items[i];if(!it||it.c<=0){beep(120,0.1);return}it.c--;B.php=Math.min(B.pmax,B.php+it.h);beep(520,0.1,'triangle');setTimeout(()=>beep(780,0.12,'triangle'),100);await btext(it.m);resume()}}
+ else{const it=B.items[i];if(!it||it.c<=0){beep(120,0.1);return}it.c--;if(it.t){for(let k=0;k<3;k++)setTimeout(()=>{beep(170-k*15,0.12,'sine',0.09,-60);noise(0.06,0.05)},k*260);await wait(0.9);await btext('...어? 맛이 이상한데...?');B.shake=0.4;beep(90,0.5,'sawtooth',0.1,-40);await btext('이건... 간장이잖아!!!!');B.soy=1;B.php=0;B.phase='lose';beep(110,0.6,'triangle',0.1,-60);return}B.php=Math.min(B.pmax,B.php+it.h);beep(520,0.1,'triangle');setTimeout(()=>beep(780,0.12,'triangle'),100);await btext(it.m);resume()}}
 function resume(){B.phase='enemy';B.et=B.etSave||0;B.bul=B.bul.filter(b=>b.k==='mini');B.soul.inv=0.6}
 const BEAT=0.5,NOTEB=[2,3,4,4.5],LINEX=70,NSPD=150;
 function startRhythm(){B.etSave=B.et;B.phase='rhythm';B.notes={t0:gt+0.4,beat:0,list:NOTEB.map(b=>({t:0,b,j:null})),done:false,total:0};for(const n of B.notes.list)n.t=B.notes.t0+n.b*BEAT}
@@ -420,7 +420,7 @@ function drawBattle(){const sx=B.shake>0?(Math.random()*6-3):0;
  ctx.strokeStyle='#ff9a3c';ctx.lineWidth=2;ctx.strokeRect(500,8,52,34);ctx.drawImage(BAG,510,9,32,32);T('B',547,36,9,'#fff','right','900');T('아이템',526,52,9,'#ff9a3c','center');T('★빛나는 부메랑을 잡으면 공격!',-60,410,11,'#ffd84d');T(`${({slime:'슬라임',goblin:'고블린',lizard:'불도마뱀',golem:'용암 골렘',dragon:'파이어드래곤'})[B.mon]} HP ${B.hp}/${B.max}`,-60,426,11,'#9cf05a');
  const OFF=B.phase==='win'&&B.mon==='dragon'?2.6:0;if((B.phase==='win'||B.phase==='lose')&&B.et>=OFF){ctx.globalAlpha=Math.min(1,(B.et-OFF)*2);R(-OX,0,SW,VH+10,'#000');ctx.globalAlpha=1;
   if(B.phase==='win'){T('YOU WIN!',180,140,32,'#ffd84d','center','900');if(B.mon==='dragon'){T('파이어드래곤을 쓰러뜨렸다!',180,200,15,'#fff','center');T('EXP +60',180,230,12,'#aaa','center')}else if(B.mon==='golem'){T('용암 골렘이 식어 굳었다.',180,200,14,'#fff','center');T('EXP +25  ·  온천 달걀을 얻었다!',180,230,12,'#aaa','center')}else if(B.mon==='lizard'){T('불도마뱀이 쓰러졌다.',180,200,14,'#fff','center');T('EXP +20  ·  군고구마를 얻었다!',180,230,12,'#aaa','center')}else if(B.mon==='goblin'){T('고블린 창병이 도망쳤다.',180,200,14,'#fff','center');T('EXP +15  ·  뭔가 떨어뜨렸다!',180,230,12,'#aaa','center')}else{T('젤리 슬라임이 포도 젤리가 되었다.',180,200,14,'#fff','center');T('EXP +10  ·  포도 젤리를 얻었다!',180,230,12,'#aaa','center')}T('부메랑이 무사히 돌아왔다.',180,256,13,'#aaa','center');ctx.drawImage(BOOM,166,280,28,28)}
-  else{T('GAME OVER',180,140,32,'#f44','center','900');T(`${heroName}... 젤리한테 졌다고?`,180,200,14,'#fff','center');T('결의를 다지자. (콜라 마시고 싶다)',180,228,12,'#aaa','center');box(110,300,140,44);T('다시 하기',180,322,16,'#ffd84d','center')}
+  else{T('GAME OVER',180,140,32,'#f44','center','900');T((B&&B.soy?`${heroName}... 간장 원샷으로 쓰러졌다.`:`${heroName}... ${({slime:'젤리 슬라임',goblin:'고블린 창병',lizard:'불도마뱀',golem:'용암 골렘',dragon:'파이어드래곤'})[B&&B.mon]||'몬스터'}한테 졌다고?`),180,200,14,'#fff','center');T('결의를 다지자. (콜라 마시고 싶다)',180,228,12,'#aaa','center');box(110,300,140,44);T('다시 하기',180,322,16,'#ffd84d','center')}
   if(B.et>0.8&&Math.floor(gt*2)%2)T('A / Z / 탭',180,380,11,'#888','center')}}
 // ---------- name ----------
 let nameT=0;function openName(){scene='name';nameT=performance.now();nm.style.display='flex';placeInput();nmi.value='';setTimeout(()=>nmi.focus(),50)}

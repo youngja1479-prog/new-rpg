@@ -1,6 +1,6 @@
 <!DOCTYPE html><html lang="ko"><head><meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
-<title>제목 미정 RPG</title>
+<title>콜라 RPG</title>
 <style>
 html,body{margin:0;height:100%;background:#141414;overflow:hidden;touch-action:none;-webkit-user-select:none;user-select:none}
 body{display:flex;align-items:center;justify-content:center}
@@ -411,7 +411,7 @@ function drawControls(){R(0,450,W,190,'#000');R(0,448,W,2,'#222');
  ctx.globalAlpha=1;T('Z/Enter=A  X/Shift=B  방향키/WASD',180,630,9,'#444','center')}
 function draw(){ctx.setTransform(2,0,0,2,0,0);ctx.imageSmoothingEnabled=false;R(0,0,W,H,'#000');
  const sx=shake>0?(Math.random()*8-4):0,sy=shake>0?(Math.random()*8-4):0;
- if(scene==='title'){T('제목 미정 RPG',180,150,30,'#fff','center','900');T('(가제)',180,186,12,'#888','center');ctx.drawImage(HERO[0][Math.floor(gt*4)%2?1:2],156,240,48,72);ctx.drawImage(BOOM,214,250,20,20);
+ if(scene==='title'){T('콜라 RPG',180,150,30,'#fff','center','900');T('(가제)',180,186,12,'#888','center');ctx.drawImage(HERO[0][Math.floor(gt*4)%2?1:2],156,240,48,72);ctx.drawImage(BOOM,214,250,20,20);
   T('~ 콜라 사러 갔다가 이세계 ~',180,345,12,'#aaa','center');if(Math.floor(gt*2)%2)T('- Z / A / 탭 해서 시작 -',180,400,13,'#ffd84d','center')}
  else if(scene==='name'){T('용사의 이름을 정해주세요',180,150,16,'#fff','center');T('(최대 8글자 · 비우면 김용사)',180,176,11,'#888','center')}
  else if(scene==='map'){ctx.save();ctx.beginPath();ctx.rect(0,0,W,VH+10);ctx.clip();ctx.translate(sx,sy);MAPS[mapId].draw();drawHero();

@@ -210,9 +210,9 @@ async function crosswalk2(){lock=true;tip='';flags.cross2=1;hero.dir=0;await say
  flags.sign.y=ty;noise(0.5,0.35);beep(90,0.4,'square',0.15,-50);shake=0.7;fx.push({k:'boom',x:hero.x,y:hero.y-70,t:0});hero.fallen=true;for(let i=0;i<5;i++)fx.push({k:'star',i,t:0});
  await wait(1.6);await fadeTo(1,1.2);fx.length=0;scene='black';await wait(0.6);await say('......');await say('...간판에 맞아서 죽은 줄 알았는데...','{name}');
  mapId='hall';scene='map';hero.fallen=false;flags.sign=null;hero.x=180;hero.y=324;hero.dir=1;flags.summon=1;fadeA=1;fadeC='#fff';beep(300,1.2,'sine',0.06,900);await fadeTo(0,1.4);
- await say('어.... 용사인가?','왕');await say('어.... 못생겼지만 그런가봅니다.','마법사');await say('......? (방금 뭐라고?)','{name}');
+ await say('어.... 용사인가?','왕');await say('어.... 못생겼지만 그런가봅니다.','마법사');await say('......? (방금 뭐라고?)','{name}');await say('뭐.... 최종보스보다는 잘생겼으니. 용사아니겠나. 껄껄껄','왕');await say('.......(뭔가 기분 나빠, 최종보스는 얼마나 못생겼길래.....)','{name}');
  await say('이 왕국에 몬스터가 쳐들어왔다, 당신이 우리를 구원해주어야 하네.','왕');await say('여기 최고의 생존자가 사용한 부메랑이라네. 잘 사용하시게나.','왕');
- flags.boom=1;jingle();await say('★ 부메랑을 획득했다! ★');flags.boom=0;await say('(부메랑...? 칼 같은 건 없나...?)','{name}');await say('성문 밖은 이미 몬스터 천지라네... 조심하게나.','왕');
+ flags.boom=1;jingle();await say('★ 부메랑을 획득했다! ★');flags.boom=0;await say('(부메랑...? 칼 같은 건 없나...?)','{name}');await say('아 추가적으로 콜라 2병을 주겠네.','왕');await say('(!!!! 콜라) 열심히 하겠습니다!!!!','{name}');await say('그래 성문 밖은 이미 몬스터 천지라네... 조심하게나.','왕');
  fadeC='#000';await fadeTo(1,0.8);flags.summon=0;mapId='gate';hero.x=180;hero.y=200;hero.dir=0;await fadeTo(0,0.8);banner={t:0,txt:'여행 시작'};jingle();await wait(2.2);lock=false;tip='저 말랑한 건 뭐지...?'}
 const SL={x:470,y:290,chase:false},SL_R=170,SL_SPD=60,GB={x:500,y:210,chase:false},GB_SPD=76;let lastMon='slime';
 async function goblinMeet(){lock=true;tip='';noise(0.12,0.15);beep(200,0.15,'sawtooth',0.06,200);await say('고블린 창병이 창을 휘두르며 달려든다!');

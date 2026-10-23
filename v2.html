@@ -44,14 +44,15 @@ const K=t=>({t,s:'왕'}),M=t=>({t,s:'마법사'});
 function hallScene(){say([K('어.... 용사인가?'),M('어.... 못생겼지만 그런가봅니다.'),PL('......? (방금 뭐라고?)'),K('뭐.... 최종보스보다는 잘생겼으니. 용사 아니겠나. 껌껌껌'),PL('.......(뭔가 기분 나빠, 최종보스는 얼마나 못생겼길래.....)'),
  K('이 왕국에 몬스터가 쳐들어왔다네, 당신이 우리를 구원해주어야 하네.'),K('여기 최고의 생존자가 사용한 부메랑이라네. 잘 사용하시게나.'),F(()=>{addItem('boomerang',1);jingle()}),L('★ 부메랑을 획득했다! ★'),
  PL('(부메랑...? 칼 같은 건 없나...?)'),K('아 추가적으로 콜라 2병을 주겠네.'),F(()=>{addItem('cola',2);jingle()}),L('★ 콜라 2병을 획득했다! ★'),PL('(!!!! 콜라) 열심히 하겠습니다!!!!'),K('그래 성문 밖은 이미 몬스터 천지라네... 조심하게나.'),F(()=>{mode='end'})])}
+function mkSprite(w,h,fn,s=2){const c=document.createElement('canvas');c.width=w*s;c.height=h*s;const g=c.getContext('2d');fn((x,y,ww,hh,col)=>{g.fillStyle=col;g.fillRect(x*s,y*s,ww*s,hh*s)});return c}
+const SK='#f2c79a';
+const KING=mkSprite(20,28,p=>{p(6,1,8,3,'#ffd84d');p(6,0,1,1,'#ffd84d');p(9,0,2,1,'#ffd84d');p(13,0,1,1,'#ffd84d');p(9,2,2,1,'#e33');p(6,4,8,6,SK);p(8,6,1,1,'#000');p(11,6,1,1,'#000');p(5,8,10,6,'#eee');p(3,13,14,13,'#b02030');p(3,13,14,2,'#fff');p(9,15,2,11,'#fff');p(1,15,2,8,'#b02030');p(17,15,2,8,'#b02030');p(5,26,4,2,'#333');p(11,26,4,2,'#333')});
+const MAGE=mkSprite(22,28,p=>{p(7,0,6,2,'#7a4ac8');p(5,2,10,3,'#7a4ac8');p(3,5,14,2,'#7a4ac8');p(9,1,2,1,'#ffd84d');p(6,7,8,5,SK);p(8,8,1,1,'#000');p(11,8,1,1,'#000');p(6,10,8,5,'#bbb');p(4,13,12,13,'#4a3a9a');p(4,13,12,1,'#ffd84d');p(18,4,2,24,'#8a5a2a');p(17,1,4,4,'#4df3ff');p(15,15,3,2,SK);p(6,26,3,2,'#333');p(11,26,3,2,'#333')});
 function drawHall(){for(let y=80;y<440;y+=20)for(let x=0;x<360;x+=20)R(x,y,20,20,((x+y)/20)%2?'#4c4c58':'#555564');
  R(0,40,360,46,'#3a3a48');for(let x=0;x<360;x+=30)R(x,40,1,46,'#2a2a36');for(const x of[60,276]){R(x,44,24,38,'#a02030');R(x,78,6,6,'#a02030');R(x+18,78,6,6,'#a02030');R(x+8,56,8,8,'#ffd84d')}
  R(150,86,60,354,'#8a1a2a');R(154,86,52,354,'#a82838');R(154,86,2,354,'#d8b040');R(204,86,2,354,'#d8b040');
- R(156,84,48,58,'#c8a030');R(160,88,40,50,'#a02030');R(152,120,8,26,'#c8a030');R(200,120,8,26,'#c8a030');
- // king
- R(168,108,24,30,'#6a1a8a');R(166,112,28,6,'#fff');R(172,96,16,14,'#f5c99a');R(172,108,16,6,'#eee');R(174,101,3,3,'#000');R(183,101,3,3,'#000');R(170,90,20,6,'#ffd84d');R(170,86,4,4,'#ffd84d');R(178,86,4,4,'#ffd84d');R(186,86,4,4,'#ffd84d');R(179,92,2,2,'#e33');
- // wizard
- R(240,140,28,36,'#5a2a9a');R(244,128,20,14,'#f0d0b0');R(244,138,20,14,'#ddd');R(240,112,28,18,'#4a1a8a');R(248,102,12,12,'#4a1a8a');R(252,96,6,8,'#4a1a8a');R(248,132,3,3,'#000');R(257,132,3,3,'#000');R(272,110,3,66,'#8a5a2a');R(269,104,9,9,'#4df');
+ R(160,86,40,50,'#c8a030');R(164,90,32,40,'#a02030');
+ ctx.imageSmoothingEnabled=false;ctx.drawImage(KING,160,92,40,56);ctx.drawImage(MAGE,232,120,44,56);
  for(const x of [30,330]){R(x-10,90,20,340,'#6a6a78');R(x-12,90,24,8,'#7a7a88');R(x-12,422,24,8,'#7a7a88');R(x-10,90,3,340,'#8a8a98');const fl=Math.floor(gt*8)%2;R(x-4,150,8,10,'#5a3a1a');R(x-4,140-fl,8,8,'#f93');R(x-2,136-fl,4,5,'#ff4')}
  if(summon){const cx=180,cy=322;ctx.globalAlpha=Math.min(1,summon)*(.25+.1*Math.sin(gt*4));R(cx-30,40,60,cy-40,'#cff');ctx.globalAlpha=1;ctx.strokeStyle='#8ff';ctx.lineWidth=2;ctx.beginPath();ctx.ellipse(cx,cy,60,22,0,0,7);ctx.stroke();ctx.beginPath();ctx.ellipse(cx,cy,44,15,0,0,7);ctx.stroke();for(let i=0;i<8;i++){const a=gt*1.5+i*.785;R(cx+Math.cos(a)*52-2,cy+Math.sin(a)*18-2,4,4,'#fff')}}}
 function opening(){inv.length=0;white=0;summon=0;mapId='room';black=false;fade=0;fadeT=null;P.fallen=false;sign=null;P.x=85;P.y=132;P.dir='up';P.seated=true;mode='room';
@@ -79,22 +80,25 @@ const D={up:[0,-1],down:[0,1],left:[-1,0],right:[1,0]};
 function interact(){if(mapId!=='room')return null;const d=D[P.dir];for(const k of[10,18,26]){const px=P.x+d[0]*k,py=P.y+d[1]*k;for(const o of inter)if(hit(px,py,o.r,2)){o.fn();return o.n}}return null}
 // input
 const keys={};let joy={on:false,id:null,cx:70,cy:560,dx:0,dy:0};
-function A(){if(mode==='title'){mode='name';nm.style.display='block';nm.value='';nm.focus();return}
+function A(){if(bagOpen)return;if(mode==='title'){mode='name';nm.style.display='block';nm.value='';nm.focus();return}
  if(mode==='name'){submitName();return}
  if(mode==='over'){restart();return}
  if(mode!=='room')return;
 if(cur&&cur.wait!==undefined)return;
  if(cur){if(cur.choice)choose(choiceSel);else next();return}
  if(!P.seated)interact()}
-function B(){if(mode==='room'&&cur&&cur.choice)choose(1)}
+function B(){if(bagOpen){bagOpen=false;return}if(mode==='room'&&cur&&cur.choice)choose(1)}
 function submitName(){const v=nm.value.trim();name=v||'플레이어';nm.style.display='none';nm.blur();flags.fridge=false;noCount=0;opening()}
 function restart(){flags.fridge=false;noCount=0;deathReason='';opening()}
 addEventListener('keydown',e=>{const k=e.key;if(mode==='name'){if(k==='Enter'){e.preventDefault();submitName()}return}
- keys[k.toLowerCase()]=true;
+ keys[k.toLowerCase()]=true;if(k==='i'||k==='I'){toggleBag();e.preventDefault();return}
  if(cur&&cur.choice){if(['ArrowUp','ArrowDown','ArrowLeft','ArrowRight','w','a','s','d','W','A','S','D'].includes(k)){choiceSel^=1;e.preventDefault();return}}
  if(k==='z'||k==='Z'||k==='Enter'){A();e.preventDefault()}else if(k==='x'||k==='X'){B();e.preventDefault()}
  if(k.startsWith('Arrow'))e.preventDefault()});
 addEventListener('keyup',e=>{keys[e.key.toLowerCase()]=false});
+let bagOpen=false;const btnBag={x:236,y:538,r:19};
+function canBag(){return mode==='room'&&!cur&&!P.seated&&!sign&&!black&&!white}
+function toggleBag(){if(bagOpen){bagOpen=false;beep(500,.05);return true}if(!canBag())return false;bagOpen=true;beep(700,.05);return true}
 const btnA={x:300,y:560,r:30},btnB={x:236,y:592,r:24},btnRe={x:110,y:400,w:140,h:44};
 function cp(t){const b=cv.getBoundingClientRect();return{x:(t.clientX-b.left)*360/b.width,y:(t.clientY-b.top)*640/b.height}}
 function choiceRects(){return[[60,300,110,36],[190,300,110,36]]}
@@ -103,6 +107,8 @@ function down(p,id){
  if(mode==='over'){if(hit(p.x,p.y,[btnRe.x,btnRe.y,btnRe.w,btnRe.h]))restart();return}
  if(mode==='name'){if(hit(p.x,p.y,[110,350,140,40]))submitName();return}
  if(mode!=='room')return;
+ if(Math.hypot(p.x-btnBag.x,p.y-btnBag.y)<btnBag.r+6){toggleBag();return}
+ if(bagOpen){if(hit(p.x,p.y,[296,92,36,30]))bagOpen=false;return}
  if(Math.hypot(p.x-btnA.x,p.y-btnA.y)<btnA.r+8){A();return}
  if(Math.hypot(p.x-btnB.x,p.y-btnB.y)<btnB.r+8){B();return}
  if(cur&&cur.choice){const rs=choiceRects();for(let i=0;i<2;i++)if(hit(p.x,p.y,rs[i])){choose(i);return}}
@@ -118,7 +124,7 @@ cv.addEventListener('mousedown',e=>down(cp(e),'m'));addEventListener('mousemove'
 function update(dt){if(white>0)white=Math.max(0,white-dt/1.4);if(summon&&mapId==='hall'&&!white)summon=Math.max(.001,summon-dt*.2);if(shake>0)shake-=dt;if(stars)stars+=dt;if(sign&&sign.y<sign.ty)sign.y=Math.min(sign.ty,sign.y+540*dt);
  if(fadeT!==null)fade=Math.min(fadeT,fade+dt/1.2);
  if(cur&&cur.wait!==undefined){if(cur.until){if(cur.until())next()}else{cur.wait-=dt;if(cur.wait<=0)next()}return}
- if(mode!=='room'||cur||P.seated)return;
+ if(mode!=='room'||cur||P.seated||bagOpen)return;
  let dx=0,dy=0;if(keys.arrowleft||keys.a)dx--;if(keys.arrowright||keys.d)dx++;if(keys.arrowup||keys.w)dy--;if(keys.arrowdown||keys.s)dy++;
  if(joy.on&&Math.hypot(joy.dx,joy.dy)>8){dx=joy.dx/36;dy=joy.dy/36}
  if(!dx&&!dy)return;
@@ -164,11 +170,18 @@ function drawDialog(){if(!cur||cur.wait!==undefined)return;
  let y=362;if(cur.s){R(18,330,ctx.measureText(cur.s).width+60,22,'#ffd84d');T(cur.s,26,341,13,'#000')}
  for(const l of wrapText(cur.t,316,14)){T(l,22,y+4,14,'#fff');y+=22}
  if(Math.floor(gt*2)%2)T('▼',334,422,10,'#ffd84d','center')}
+function drawBag(){if(!bagOpen)return;R(0,40,360,400,'rgba(0,0,0,.55)');R(24,90,312,300,'#2a1e14');R(28,94,304,292,'#4a3424');R(32,98,296,284,'#1c1a24');
+ T('가방',44,112,16,'#ffd84d');R(296,94,32,26,'#a33');T('✕',312,107,14,'#fff','center');R(32,126,296,2,'#ffd84d');
+ if(!inv.length){T('가방이 비었다.',180,240,15,'#aaa','center');return}
+ inv.forEach((it,i)=>{const y=136+i*52,d=ITEMS[it.id];R(40,y,280,44,'#2c2a38');R(48,y+8,28,28,'#111');
+  if(it.id==='cola'){R(56,y+10,12,24,'#7a1010');R(58,y+16,8,8,'#fff');R(59,y+8,6,4,'#888')}else if(it.id==='boomerang'){R(52,y+12,20,6,'#d8a040');R(52,y+12,6,20,'#d8a040')}
+  T(it.name+(it.count>1?' x'+it.count:''),88,y+14,14,'#fff');T(d.type==='heal'?'회복 아이템 · HP+'+d.heal:d.type==='weapon'?'무기':'',88,y+32,11,'#9ab')})}
 function drawControls(){R(0,440,360,200,'#15151f');R(0,440,360,2,'#333');
  ctx.globalAlpha=.9;ctx.fillStyle='#2a2a3a';ctx.beginPath();ctx.arc(joy.on?joy.cx:70,joy.on?joy.cy:560,44,0,7);ctx.fill();
  ctx.fillStyle='#556';ctx.beginPath();ctx.arc((joy.on?joy.cx:70)+joy.dx,(joy.on?joy.cy:560)+joy.dy,20,0,7);ctx.fill();
  ctx.fillStyle='#c33';ctx.beginPath();ctx.arc(btnA.x,btnA.y,btnA.r,0,7);ctx.fill();ctx.fillStyle='#36c';ctx.beginPath();ctx.arc(btnB.x,btnB.y,btnB.r,0,7);ctx.fill();ctx.globalAlpha=1;
- T('A',btnA.x,btnA.y,20,'#fff','center');T('B',btnB.x,btnB.y,18,'#fff','center');T('Z/Enter=A  X=B  방향키/WASD 이동',180,628,10,'#778','center')}
+ ctx.globalAlpha=canBag()||bagOpen?1:.4;ctx.fillStyle=bagOpen?'#c8a040':'#8a6a3a';ctx.beginPath();ctx.arc(btnBag.x,btnBag.y,btnBag.r,0,7);ctx.fill();R(btnBag.x-9,btnBag.y-5,18,13,'#5a3a1a');R(btnBag.x-5,btnBag.y-10,10,3,'#5a3a1a');R(btnBag.x-6,btnBag.y-8,2,4,'#5a3a1a');R(btnBag.x+4,btnBag.y-8,2,4,'#5a3a1a');R(btnBag.x-2,btnBag.y-1,4,4,'#ffd84d');ctx.globalAlpha=1;
+ T('A',btnA.x,btnA.y,20,'#fff','center');T('B',btnB.x,btnB.y,18,'#fff','center');T('Z/Enter=A  X=B  I=가방  방향키/WASD 이동',180,628,10,'#778','center')}
 function drawRoad(){R(0,40,360,400,'#9a9a9a');for(let x=0;x<360;x+=24)R(x,40,1,130,'#888');for(let y=40;y<170;y+=24)R(0,y,360,1,'#888');
  R(0,40,90,40,'#b86a4a');R(270,40,90,40,'#6a8ab8');R(20,50,20,16,'#cde');R(56,50,20,16,'#cde');R(300,50,20,16,'#cde');R(330,50,20,16,'#cde');
  R(0,168,360,150,'#333');for(let x=0;x<360;x+=40)if(x<130||x>220)R(x,242,24,3,'#ffd84d');for(let y=176;y<312;y+=16)R(144,y,72,9,'#eee');
@@ -188,9 +201,9 @@ function draw(){R(0,0,360,640,'#000');
  R(0,0,360,40,'#111');T(mapId==='hall'?'왕궁 알현실':mapId==='road'?'편의점 가는 길':name+'의 방',12,20,13,'#ffd84d');T(mapId==='hall'?'':mapId==='road'?'목표: 콜라 사러 가기':flags.fridge?'목표: 편의점에 가자':'목표: 콜라를 찾자',348,20,11,'#aaa','right');
  if(black){R(0,40,360,400,'#000')}else{ctx.save();if(shake>0)ctx.translate((Math.random()-.5)*10,(Math.random()-.5)*10);
  if(mapId==='road'){drawRoad();drawPlayer();}else if(mapId==='hall'){drawHall();drawPlayer()}else{drawRoom();drawPlayer()}ctx.restore();if(fade>0){ctx.globalAlpha=fade;R(0,40,360,400,'#000');ctx.globalAlpha=1}if(white>0){ctx.globalAlpha=white;R(0,40,360,400,'#fff');ctx.globalAlpha=1}}
- drawDialog();drawControls()}
+ drawDialog();drawBag();drawControls()}
 let last=0;function loop(t){const dt=Math.min(.05,(t-last)/1000||0);last=t;gt+=dt;update(dt);draw();requestAnimationFrame(loop)}requestAnimationFrame(loop);
-window.__rpg2={inv,ITEMS,drinkColaInBattle,get white(){return white},get mode(){return mode},get map(){return mapId},rf,get sign(){return sign},get black(){return black},get name(){return name},flags,get noCount(){return noCount},get death(){return deathReason},P,
+window.__rpg2={get bagOpen(){return bagOpen},toggleBag,addItem,inv,ITEMS,drinkColaInBattle,get white(){return white},get mode(){return mode},get map(){return mapId},rf,get sign(){return sign},get black(){return black},get name(){return name},flags,get noCount(){return noCount},get death(){return deathReason},P,
  get line(){return cur?(cur.choice||cur.t):null},get speaker(){return cur?cur.s||null:null},get isChoice(){return !!(cur&&cur.choice)},get sel(){return choiceSel},
  setPos(x,y,d){P.x=x;P.y=y;P.dir=d||P.dir;P.seated=false},interact,A,B,blocked};
 </script></body></html>

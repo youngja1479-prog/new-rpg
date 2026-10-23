@@ -32,8 +32,8 @@ function crosswalk1(){rf.c1=true;P.dir='down';say([L('(빨간불이다.)'),PL('.
 function crosswalk2(){rf.c2=true;P.dir='down';say([PL('.......'),PL('어? 원래 이런 상황이면 트럭에 치여 죽던가 하지 않나?'),F(()=>P.dir='left'),W(.4),F(()=>P.dir='right'),W(.4),F(()=>P.dir='down'),L('(좌우 두리번)'),PL('...역시 그런 일이 생길 리가 없지. 이세계는 무슨.'),PL('콜라나 사러 가자—'),
  F(()=>{sign={x:P.x,y:-30,ty:P.y-30};beep(1200,.6,'sine',.04,-900)}),U(()=>sign.y>=sign.ty),F(()=>{noise(.5,.35);beep(90,.4,'square',.15,-50);shake=.7;stars=1;P.fallen=true}),W(1.6),
  F(()=>{fadeT=1}),U(()=>fade>=1),F(()=>{black=true;stars=0;sign=null}),W(.6),L('......'),PL('...간판에 맞아서 죽은 줄 알았는데...'),F(goHall),W(1.6),F(hallScene)])}
-let white=0,summon=0,inv=[];
-const ITEMS={boomerang:{name:'부메랑',type:'weapon'},cola:{name:'콜라',type:'heal',heal:10,desc:'HP+10 회복',soy:true}};
+let boomShow=null,white=0,summon=0,inv=[];
+const ITEMS={boomerang:{name:'부메랑',type:'weapon',desc:'네온빛이 은은하게 도는 부메랑. 손잡이에 N.S.라고 새겨져 있다.'},cola:{name:'콜라',type:'heal',heal:10,desc:'HP+10 회복',soy:true}};
 function addItem(id,n){const it=inv.find(i=>i.id===id);if(it)it.count+=n;else inv.push({id,name:ITEMS[id].name,count:n})}
 function jingle(){[523,659,784,1047].forEach((f,i)=>setTimeout(()=>beep(f,.15,'square',.05),i*110))}
 // stub for later battle: returns script steps; caller handles HP/death screen
@@ -42,12 +42,21 @@ function drinkColaInBattle(){const it=inv.find(i=>i.id==='cola');if(!it||it.coun
 function goHall(){mapId='hall';black=false;fade=0;fadeT=null;P.fallen=false;sign=null;stars=0;P.x=180;P.y=318;P.dir='up';white=1;summon=1;beep(300,1.2,'sine',.06,900)}
 const K=t=>({t,s:'왕'}),M=t=>({t,s:'마법사'});
 function hallScene(){say([K('어.... 용사인가?'),M('어.... 못생겼지만 그런가봅니다.'),PL('......? (방금 뭐라고?)'),K('뭐.... 최종보스보다는 잘생겼으니. 용사 아니겠나. 껌껌껌'),PL('.......(뭔가 기분 나빠, 최종보스는 얼마나 못생겼길래.....)'),
- K('이 왕국에 몬스터가 쳐들어왔다네, 당신이 우리를 구원해주어야 하네.'),K('여기 최고의 생존자가 사용한 부메랑이라네. 잘 사용하시게나.'),F(()=>{addItem('boomerang',1);jingle()}),L('★ 부메랑을 획득했다! ★'),
+ K('이 왕국에 몬스터가 쳐들어왔다네, 당신이 우리를 구원해주어야 하네.'),K('여기 최고의 생존자가 사용한 부메랑이라네. 잘 사용하시게나.'),F(()=>{addItem('boomerang',1);jingle();boomShow={a:0,trail:[]}}),L('★ 부메랑을 획득했다! ★'),F(()=>{boomShow=null}),
  PL('(부메랑...? 칼 같은 건 없나...?)'),K('아 추가적으로 콜라 2병을 주겠네.'),F(()=>{addItem('cola',2);jingle()}),L('★ 콜라 2병을 획득했다! ★'),PL('(!!!! 콜라) 열심히 하겠습니다!!!!'),K('그래 성문 밖은 이미 몬스터 천지라네... 조심하게나.'),F(()=>{mode='end'})])}
 function mkSprite(w,h,fn,s=2){const c=document.createElement('canvas');c.width=w*s;c.height=h*s;const g=c.getContext('2d');fn((x,y,ww,hh,col)=>{g.fillStyle=col;g.fillRect(x*s,y*s,ww*s,hh*s)});return c}
 const SK='#f2c79a';
 const KING=mkSprite(20,28,p=>{p(6,1,8,3,'#ffd84d');p(6,0,1,1,'#ffd84d');p(9,0,2,1,'#ffd84d');p(13,0,1,1,'#ffd84d');p(9,2,2,1,'#e33');p(6,4,8,6,SK);p(8,6,1,1,'#000');p(11,6,1,1,'#000');p(5,8,10,6,'#eee');p(3,13,14,13,'#b02030');p(3,13,14,2,'#fff');p(9,15,2,11,'#fff');p(1,15,2,8,'#b02030');p(17,15,2,8,'#b02030');p(5,26,4,2,'#333');p(11,26,4,2,'#333')});
 const MAGE=mkSprite(22,28,p=>{p(7,0,6,2,'#7a4ac8');p(5,2,10,3,'#7a4ac8');p(3,5,14,2,'#7a4ac8');p(9,1,2,1,'#ffd84d');p(6,7,8,5,SK);p(8,8,1,1,'#000');p(11,8,1,1,'#000');p(6,10,8,5,'#bbb');p(4,13,12,13,'#4a3a9a');p(4,13,12,1,'#ffd84d');p(18,4,2,24,'#8a5a2a');p(17,1,4,4,'#4df3ff');p(15,15,3,2,SK);p(6,26,3,2,'#333');p(11,26,3,2,'#333')});
+// reusable neon boomerang: trail = array of {x,y,a} older->newer
+function boomPath(c,s){c.beginPath();c.moveTo(-s,-s*.15);c.lineTo(s*.15,-s*.15);c.lineTo(s*.15,s);c.lineTo(-s*.2,s);c.lineTo(-s*.2,s*.2);c.lineTo(-s,s*.2);c.closePath()}
+function drawNeonBoomerang(x,y,angle,trail,size){const sz=size||14;ctx.save();ctx.globalCompositeOperation='lighter';
+ (trail||[]).forEach((t,i,arr)=>{const k=(i+1)/(arr.length+1);ctx.save();ctx.translate(t.x,t.y);ctx.rotate(t.a);ctx.globalAlpha=.35*k;ctx.strokeStyle=i%2?'#ff4dd8':'#4df3ff';ctx.lineWidth=3;ctx.shadowColor=ctx.strokeStyle;ctx.shadowBlur=10;boomPath(ctx,sz);ctx.stroke();ctx.restore()});
+ ctx.translate(x,y);ctx.rotate(angle);ctx.globalAlpha=1;ctx.shadowBlur=18;ctx.shadowColor='#ff4dd8';ctx.strokeStyle='#ff4dd8';ctx.lineWidth=5;boomPath(ctx,sz);ctx.stroke();
+ ctx.shadowColor='#4df3ff';ctx.strokeStyle='#4df3ff';ctx.lineWidth=2.5;boomPath(ctx,sz);ctx.stroke();ctx.shadowBlur=0;ctx.fillStyle='rgba(20,10,40,.85)';ctx.globalCompositeOperation='source-over';boomPath(ctx,sz*.8);ctx.fill();ctx.restore()}
+function drawBoomShow(){if(!boomShow)return;const b=boomShow;b.a+=.03;const x=180,y=228+Math.sin(gt*2)*5;b.trail.push({x,y,a:b.a});if(b.trail.length>10)b.trail.shift();
+ ctx.save();ctx.globalCompositeOperation='lighter';const g=ctx.createRadialGradient(x,y,4,x,y,70);g.addColorStop(0,'rgba(77,243,255,.35)');g.addColorStop(.5,'rgba(255,77,216,.15)');g.addColorStop(1,'rgba(0,0,0,0)');ctx.fillStyle=g;ctx.fillRect(x-70,y-70,140,140);ctx.restore();
+ drawNeonBoomerang(x,y,b.a,b.trail.slice(0,-1),26)}
 function drawHall(){for(let y=80;y<440;y+=20)for(let x=0;x<360;x+=20)R(x,y,20,20,((x+y)/20)%2?'#4c4c58':'#555564');
  R(0,40,360,46,'#3a3a48');for(let x=0;x<360;x+=30)R(x,40,1,46,'#2a2a36');for(const x of[60,276]){R(x,44,24,38,'#a02030');R(x,78,6,6,'#a02030');R(x+18,78,6,6,'#a02030');R(x+8,56,8,8,'#ffd84d')}
  R(150,86,60,354,'#8a1a2a');R(154,86,52,354,'#a82838');R(154,86,2,354,'#d8b040');R(204,86,2,354,'#d8b040');
@@ -173,9 +182,9 @@ function drawDialog(){if(!cur||cur.wait!==undefined)return;
 function drawBag(){if(!bagOpen)return;R(0,40,360,400,'rgba(0,0,0,.55)');R(24,90,312,300,'#2a1e14');R(28,94,304,292,'#4a3424');R(32,98,296,284,'#1c1a24');
  T('가방',44,112,16,'#ffd84d');R(296,94,32,26,'#a33');T('✕',312,107,14,'#fff','center');R(32,126,296,2,'#ffd84d');
  if(!inv.length){T('가방이 비었다.',180,240,15,'#aaa','center');return}
- inv.forEach((it,i)=>{const y=136+i*52,d=ITEMS[it.id];R(40,y,280,44,'#2c2a38');R(48,y+8,28,28,'#111');
-  if(it.id==='cola'){R(56,y+10,12,24,'#7a1010');R(58,y+16,8,8,'#fff');R(59,y+8,6,4,'#888')}else if(it.id==='boomerang'){R(52,y+12,20,6,'#d8a040');R(52,y+12,6,20,'#d8a040')}
-  T(it.name+(it.count>1?' x'+it.count:''),88,y+14,14,'#fff');T(d.type==='heal'?'회복 아이템 · HP+'+d.heal:d.type==='weapon'?'무기':'',88,y+32,11,'#9ab')})}
+ inv.forEach((it,i)=>{const y=136+i*56,d=ITEMS[it.id];R(40,y,280,50,'#2c2a38');R(48,y+8,28,28,'#111');
+  if(it.id==='cola'){R(56,y+10,12,24,'#7a1010');R(58,y+16,8,8,'#fff');R(59,y+8,6,4,'#888')}else if(it.id==='boomerang'){drawNeonBoomerang(62,y+22,gt*.8,null,9)}
+  T(it.name+(it.count>1?' x'+it.count:''),88,y+12,14,'#fff');const ds=d.type==='heal'?['회복 아이템 · HP+'+d.heal]:wrapText(d.desc||'무기',224,10);ds.forEach((l,j)=>T(l,88,y+28+j*12,10,'#9ab'))})}
 function drawControls(){R(0,440,360,200,'#15151f');R(0,440,360,2,'#333');
  ctx.globalAlpha=.9;ctx.fillStyle='#2a2a3a';ctx.beginPath();ctx.arc(joy.on?joy.cx:70,joy.on?joy.cy:560,44,0,7);ctx.fill();
  ctx.fillStyle='#556';ctx.beginPath();ctx.arc((joy.on?joy.cx:70)+joy.dx,(joy.on?joy.cy:560)+joy.dy,20,0,7);ctx.fill();
@@ -201,9 +210,9 @@ function draw(){R(0,0,360,640,'#000');
  R(0,0,360,40,'#111');T(mapId==='hall'?'왕궁 알현실':mapId==='road'?'편의점 가는 길':name+'의 방',12,20,13,'#ffd84d');T(mapId==='hall'?'':mapId==='road'?'목표: 콜라 사러 가기':flags.fridge?'목표: 편의점에 가자':'목표: 콜라를 찾자',348,20,11,'#aaa','right');
  if(black){R(0,40,360,400,'#000')}else{ctx.save();if(shake>0)ctx.translate((Math.random()-.5)*10,(Math.random()-.5)*10);
  if(mapId==='road'){drawRoad();drawPlayer();}else if(mapId==='hall'){drawHall();drawPlayer()}else{drawRoom();drawPlayer()}ctx.restore();if(fade>0){ctx.globalAlpha=fade;R(0,40,360,400,'#000');ctx.globalAlpha=1}if(white>0){ctx.globalAlpha=white;R(0,40,360,400,'#fff');ctx.globalAlpha=1}}
- drawDialog();drawBag();drawControls()}
+ drawBoomShow();drawDialog();drawBag();drawControls()}
 let last=0;function loop(t){const dt=Math.min(.05,(t-last)/1000||0);last=t;gt+=dt;update(dt);draw();requestAnimationFrame(loop)}requestAnimationFrame(loop);
-window.__rpg2={get bagOpen(){return bagOpen},toggleBag,addItem,inv,ITEMS,drinkColaInBattle,get white(){return white},get mode(){return mode},get map(){return mapId},rf,get sign(){return sign},get black(){return black},get name(){return name},flags,get noCount(){return noCount},get death(){return deathReason},P,
+window.__rpg2={get boomShow(){return boomShow},drawNeonBoomerang,get bagOpen(){return bagOpen},toggleBag,addItem,inv,ITEMS,drinkColaInBattle,get white(){return white},get mode(){return mode},get map(){return mapId},rf,get sign(){return sign},get black(){return black},get name(){return name},flags,get noCount(){return noCount},get death(){return deathReason},P,
  get line(){return cur?(cur.choice||cur.t):null},get speaker(){return cur?cur.s||null:null},get isChoice(){return !!(cur&&cur.choice)},get sel(){return choiceSel},
  setPos(x,y,d){P.x=x;P.y=y;P.dir=d||P.dir;P.seated=false},interact,A,B,blocked};
 </script></body></html>

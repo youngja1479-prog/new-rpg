@@ -12,17 +12,27 @@ let S=1;function fit(){S=Math.min(innerWidth/360,innerHeight/640);wrap.style.wid
 addEventListener('resize',fit);fit();
 function R(x,y,w,h,c){ctx.fillStyle=c;ctx.fillRect(x|0,y|0,w|0,h|0)}
 function T(s,x,y,sz,c,al){ctx.font='bold '+sz+'px sans-serif';ctx.fillStyle=c;ctx.textAlign=al||'left';ctx.textBaseline='middle';ctx.fillText(s,x,y)}
+let mapId='room',shake=0,fade=0,fadeT=null,black=false,sign=null,stars=0,ACX=null;const rf={green:false,c1:false,c2:false};
 let mode='title',name='',gt=0,flags={fridge:false},noCount=0,deathReason='';
 const P={x:85,y:132,dir:'up',seated:true,step:0};
 // dialogue
 let queue=[],cur=null,choiceSel=0,onEnd=null;
 function say(list,end){queue=list.slice();onEnd=end||null;next()}
-function next(){cur=queue.shift()||null;choiceSel=0;if(cur&&cur.fn){const f=cur.fn;cur=null;f();if(!cur&&queue.length)next();return}
+function next(){cur=queue.shift()||null;choiceSel=0;if(cur&&cur.wait!==undefined)return;if(cur&&cur.fn){const f=cur.fn;cur=null;f();if(!cur&&queue.length)next();return}
  if(!cur){const e=onEnd;onEnd=null;if(e)e()}}
 const L=(t,s)=>({t,s}), PL=t=>({t,s:name}), CH=(q,yes,no)=>({choice:q,yes,no});
 function choose(i){const c=cur;queue=[];cur=null;onEnd=null;(i===0?c.yes:c.no)()}
 // opening
-function opening(){P.x=85;P.y=132;P.dir='up';P.seated=true;mode='room';
+function goRoad(){mapId='road';P.x=180;P.y=96;P.dir='down';P.seated=false;Object.assign(rf,{green:false,c1:false,c2:false})}
+function au(){try{ACX=ACX||new (window.AudioContext||window.webkitAudioContext)();if(ACX.state==='suspended')ACX.resume()}catch(e){}return ACX}
+function beep(f,d,tp,v,sl){const a=au();if(!a)return;const o=a.createOscillator(),g=a.createGain();o.type=tp||'square';o.frequency.setValueAtTime(f,a.currentTime);if(sl)o.frequency.linearRampToValueAtTime(Math.max(30,f+sl),a.currentTime+d);g.gain.setValueAtTime(v||.06,a.currentTime);g.gain.exponentialRampToValueAtTime(.001,a.currentTime+d);o.connect(g).connect(a.destination);o.start();o.stop(a.currentTime+d)}
+function noise(d,v){const a=au();if(!a)return;const n=a.sampleRate*d,b=a.createBuffer(1,n,a.sampleRate),c=b.getChannelData(0);for(let i=0;i<n;i++)c[i]=(Math.random()*2-1)*(1-i/n);const s=a.createBufferSource(),g=a.createGain();g.gain.value=v;s.buffer=b;s.connect(g).connect(a.destination);s.start()}
+const W=(t)=>({wait:t}),U=(p)=>({wait:99,until:p}),F=(fn)=>({fn});
+function crosswalk1(){rf.c1=true;P.dir='down';say([L('(빨간불이다.)'),PL('......'),PL('왜 내 인생은 이따구지.'),PL('취업은 언제 하지... 자소서만 47번째다.'),PL('엄마는 또 "옆집 철수는~" 하겠지.'),PL('아 빨리 이 세상 뜨든가 해야지.'),W(.6),F(()=>{rf.green=true;beep(880,.1);setTimeout(()=>beep(880,.1),180)}),L('(삐뽀- 초록불이 켜졌다.)')])}
+function crosswalk2(){rf.c2=true;P.dir='down';say([PL('.......'),PL('어? 원래 이런 상황이면 트럭에 치여 죽던가 하지 않나?'),F(()=>P.dir='left'),W(.4),F(()=>P.dir='right'),W(.4),F(()=>P.dir='down'),L('(좌우 두리번)'),PL('...역시 그런 일이 생길 리가 없지. 이세계는 무슨.'),PL('콜라나 사러 가자—'),
+ F(()=>{sign={x:P.x,y:-30,ty:P.y-30};beep(1200,.6,'sine',.04,-900)}),U(()=>sign.y>=sign.ty),F(()=>{noise(.5,.35);beep(90,.4,'square',.15,-50);shake=.7;stars=1;P.fallen=true}),W(1.6),
+ F(()=>{fadeT=1}),U(()=>fade>=1),F(()=>{black=true;stars=0;sign=null}),W(.6),L('......'),PL('...간판에 맞아서 죽은 줄 알았는데...'),F(()=>{mode='end'})])}
+function opening(){mapId='room';black=false;fade=0;fadeT=null;P.fallen=false;sign=null;P.x=85;P.y=132;P.dir='up';P.seated=true;mode='room';
  say([L('(딸깍딸깍... 딸깍...)'),PL('크으... 이번 판도 졌다. 팀운이 없어, 팀운이.'),PL('아 목말라... 콜라 마시고 싶다.'),askStand()])}
 function askStand(){return CH('콜라를 마시기 위해 일어날까?',()=>say([PL('냉장고에 하나 남아있었던 것 같은데.')],()=>{P.seated=false;P.y=146;P.dir='down'}),
  ()=>{noCount++;if(noCount===1)say([L('(목 마르지만 게임을 계속한다.)'),L('(또 패배)'),PL('으.... 또 졌어. 아니 ## 왜 궁을 안써. 저 ##는'),PL('으 목 탄다.'),askStand()]);
@@ -39,17 +49,19 @@ const inter=[
    :say([L('냉장고를 열었다.'),L('......'),L('텅 비었다. 콜라는 커녕 물도 없다. 케첩 하나가 쓸쓸히 누워 있다.'),PL('아 진짜... 편의점 가야겠다.'),{fn:()=>{flags.fridge=true}}])},
  {n:'window',r:[146,40,58,40],fn:()=>say([PL('하늘이 맑다.'),CH('뛰어내릴까?',()=>flags.fridge?say([PL('그래 1층이니까 뛰어내려도 괜찮겠지'),L('(뛰어내린다)'),PL('(잠시만......)'),L('(생각해보니까 우리집 이사했잖아? 15층으로 으악!!!!!!)'),die('15층에서 뛰어내렸다. (추락사)')])
    :say([PL('일단 목 좀 축이고 생각하자')]),()=>{})])},
- {n:'door',r:[156,420,48,20],fn:()=>flags.fridge?(mode='end'):say([L('(콜라부터 찾자.)')])}];
+ {n:'door',r:[156,420,48,20],fn:()=>flags.fridge?goRoad():say([L('(콜라부터 찾자.)')])}];
 function hit(x,y,r,m){m=m||0;return x>r[0]-m&&x<r[0]+r[2]+m&&y>r[1]-m&&y<r[1]+r[3]+m}
-function blocked(x,y){if(x<28||x>332||y<82||y>426)return true;return solids.some(s=>x+7>s[0]&&x-7<s[0]+s[2]&&y+7>s[1]&&y-7<s[1]+s[3])}
+function blocked(x,y){if(mapId==='road'){if(x<10||x>350||y<90||y>360)return true;if(!rf.green&&y>160)return true;return x+7>226&&x-7<242&&y-7<170&&y+7>82}
+ if(x<28||x>332||y<82||y>426)return true;return solids.some(s=>x+7>s[0]&&x-7<s[0]+s[2]&&y+7>s[1]&&y-7<s[1]+s[3])}
 const D={up:[0,-1],down:[0,1],left:[-1,0],right:[1,0]};
-function interact(){const d=D[P.dir];for(const k of[10,18,26]){const px=P.x+d[0]*k,py=P.y+d[1]*k;for(const o of inter)if(hit(px,py,o.r,2)){o.fn();return o.n}}return null}
+function interact(){if(mapId!=='room')return null;const d=D[P.dir];for(const k of[10,18,26]){const px=P.x+d[0]*k,py=P.y+d[1]*k;for(const o of inter)if(hit(px,py,o.r,2)){o.fn();return o.n}}return null}
 // input
 const keys={};let joy={on:false,id:null,cx:70,cy:560,dx:0,dy:0};
 function A(){if(mode==='title'){mode='name';nm.style.display='block';nm.value='';nm.focus();return}
  if(mode==='name'){submitName();return}
  if(mode==='over'){restart();return}
  if(mode!=='room')return;
+if(cur&&cur.wait!==undefined)return;
  if(cur){if(cur.choice)choose(choiceSel);else next();return}
  if(!P.seated)interact()}
 function B(){if(mode==='room'&&cur&&cur.choice)choose(1)}
@@ -73,7 +85,7 @@ function down(p,id){
  if(Math.hypot(p.x-btnB.x,p.y-btnB.y)<btnB.r+8){B();return}
  if(cur&&cur.choice){const rs=choiceRects();for(let i=0;i<2;i++)if(hit(p.x,p.y,rs[i])){choose(i);return}}
  if(p.y>460&&p.x<180){joy.on=true;joy.id=id;joy.cx=p.x;joy.cy=p.y;joy.dx=joy.dy=0}
- else if(cur&&!cur.choice&&p.y<460)next()}
+ else if(cur&&!cur.choice&&cur.wait===undefined&&p.y<460)next()}
 function move(p,id){if(joy.on&&joy.id===id){let dx=p.x-joy.cx,dy=p.y-joy.cy,m=Math.hypot(dx,dy);if(m>36){dx*=36/m;dy*=36/m}joy.dx=dx;joy.dy=dy}}
 function up(id){if(joy.id===id){joy.on=false;joy.dx=joy.dy=0;joy.id=null}}
 cv.addEventListener('touchstart',e=>{e.preventDefault();for(const t of e.changedTouches)down(cp(t),t.identifier)},{passive:false});
@@ -81,12 +93,16 @@ cv.addEventListener('touchmove',e=>{e.preventDefault();for(const t of e.changedT
 cv.addEventListener('touchend',e=>{e.preventDefault();for(const t of e.changedTouches)up(t.identifier)},{passive:false});
 cv.addEventListener('mousedown',e=>down(cp(e),'m'));addEventListener('mousemove',e=>move(cp(e),'m'));addEventListener('mouseup',()=>up('m'));
 // update
-function update(dt){if(mode!=='room'||cur||P.seated)return;
+function update(dt){if(shake>0)shake-=dt;if(stars)stars+=dt;if(sign&&sign.y<sign.ty)sign.y=Math.min(sign.ty,sign.y+540*dt);
+ if(fadeT!==null)fade=Math.min(fadeT,fade+dt/1.2);
+ if(cur&&cur.wait!==undefined){if(cur.until){if(cur.until())next()}else{cur.wait-=dt;if(cur.wait<=0)next()}return}
+ if(mode!=='room'||cur||P.seated)return;
  let dx=0,dy=0;if(keys.arrowleft||keys.a)dx--;if(keys.arrowright||keys.d)dx++;if(keys.arrowup||keys.w)dy--;if(keys.arrowdown||keys.s)dy++;
  if(joy.on&&Math.hypot(joy.dx,joy.dy)>8){dx=joy.dx/36;dy=joy.dy/36}
  if(!dx&&!dy)return;
  if(Math.abs(dx)>Math.abs(dy))P.dir=dx>0?'right':'left';else P.dir=dy>0?'down':'up';
- const sp=90*dt;const nx=P.x+dx*sp,ny=P.y+dy*sp;if(!blocked(nx,P.y))P.x=nx;if(!blocked(P.x,ny))P.y=ny;P.step+=dt}
+ const sp=90*dt;const nx=P.x+dx*sp,ny=P.y+dy*sp;if(!blocked(nx,P.y))P.x=nx;if(!blocked(P.x,ny))P.y=ny;P.step+=dt;
+ if(mapId==='road'){if(!rf.c1&&P.y>150)crosswalk1();else if(rf.green&&!rf.c2&&P.y>335)crosswalk2()}}
 // draw
 function drawRoom(){R(0,40,360,400,'#2a2018');R(20,74,320,360,'#8a6a4a');
  for(let y=74,i=0;y<434;y+=18,i++){R(20,y,320,1,'#6e5238');R(20+(i%2?96:208),y,1,18,'#6e5238')}
@@ -112,12 +128,13 @@ function drawRoom(){R(0,40,360,400,'#2a2018');R(20,74,320,360,'#8a6a4a');
  // door
  R(156,426,48,10,'#3a2414');R(160,428,40,6,flags.fridge?'#c8a060':'#7a5030');if(flags.fridge)T('▼ 밖으로',180,416,10,'#ffd84d','center')}
 function drawPlayer(){const x=P.x|0,y=P.y|0,bob=(P.step*8|0)%2;
+ if(P.fallen){R(x-12,y-2,24,8,'#e05a2a');R(x+10,y-2,6,8,'#334');R(x-22,y-4,11,11,'#f5c99a');R(x-24,y-6,4,14,'#3a2414');return}
  R(x-6,y+6,12,3,'rgba(0,0,0,.3)');
  R(x-5,y-2+bob,10,8,'#e05a2a');R(x-5,y+5,4,3,'#334');R(x+1,y+5,4,3,'#334');
  R(x-5,y-12,10,10,'#f5c99a');R(x-6,y-14,12,4,'#3a2414');
  if(P.dir==='down'){R(x-3,y-8,2,2,'#000');R(x+1,y-8,2,2,'#000')}else if(P.dir==='left')R(x-4,y-8,2,2,'#000');else if(P.dir==='right')R(x+2,y-8,2,2,'#000');else R(x-6,y-12,12,4,'#3a2414')}
 function wrapText(s,w,sz){ctx.font='bold '+sz+'px sans-serif';const out=[];let line='';for(const ch of s){if(ctx.measureText(line+ch).width>w){out.push(line);line=ch}else line+=ch}if(line)out.push(line);return out}
-function drawDialog(){if(!cur)return;
+function drawDialog(){if(!cur||cur.wait!==undefined)return;
  if(cur.choice){R(20,240,320,110,'#000a');R(20,240,320,110,'rgba(0,0,0,.85)');ctx.strokeStyle='#ffd84d';ctx.lineWidth=2;ctx.strokeRect(21,241,318,108);
   T(cur.choice,180,268,15,'#fff','center');const rs=choiceRects(),lb=['예','아니오'];
   for(let i=0;i<2;i++){const r=rs[i];R(r[0],r[1],r[2],r[3],i===choiceSel?'#ffd84d':'#333');T((i===choiceSel?'▶ ':'')+lb[i],r[0]+r[2]/2,r[1]+18,15,i===choiceSel?'#000':'#fff','center')}return}
@@ -130,6 +147,14 @@ function drawControls(){R(0,440,360,200,'#15151f');R(0,440,360,2,'#333');
  ctx.fillStyle='#556';ctx.beginPath();ctx.arc((joy.on?joy.cx:70)+joy.dx,(joy.on?joy.cy:560)+joy.dy,20,0,7);ctx.fill();
  ctx.fillStyle='#c33';ctx.beginPath();ctx.arc(btnA.x,btnA.y,btnA.r,0,7);ctx.fill();ctx.fillStyle='#36c';ctx.beginPath();ctx.arc(btnB.x,btnB.y,btnB.r,0,7);ctx.fill();ctx.globalAlpha=1;
  T('A',btnA.x,btnA.y,20,'#fff','center');T('B',btnB.x,btnB.y,18,'#fff','center');T('Z/Enter=A  X=B  방향키/WASD 이동',180,628,10,'#778','center')}
+function drawRoad(){R(0,40,360,400,'#9a9a9a');for(let x=0;x<360;x+=24)R(x,40,1,130,'#888');for(let y=40;y<170;y+=24)R(0,y,360,1,'#888');
+ R(0,40,90,40,'#b86a4a');R(270,40,90,40,'#6a8ab8');R(20,50,20,16,'#cde');R(56,50,20,16,'#cde');R(300,50,20,16,'#cde');R(330,50,20,16,'#cde');
+ R(0,168,360,150,'#333');for(let x=0;x<360;x+=40)if(x<130||x>220)R(x,242,24,3,'#ffd84d');for(let y=176;y<312;y+=16)R(144,y,72,9,'#eee');
+ R(0,318,360,60,'#9a9a9a');for(let x=0;x<360;x+=24)R(x,318,1,60,'#888');
+ R(0,372,360,68,'#e8e0d0');R(0,372,360,14,'#2a8a5a');T('24시 편의점',180,379,11,'#fff','center');R(150,392,60,48,'#9ad');R(179,392,2,48,'#678');R(20,394,110,30,'#cde');R(230,394,110,30,'#cde');T('콜라 1+1',75,409,10,'#c22','center');
+ R(232,100,4,70,'#555');R(226,82,16,22,'#111');R(229,85,10,7,rf.green?'#222':'#f33');R(229,94,10,7,rf.green?'#3f6':'#222');
+ if(sign){R(sign.x-26,sign.y-12,52,24,'#c33');R(sign.x-24,sign.y-10,48,20,'#e44');T('SALE',sign.x,sign.y+1,11,'#fff','center')}
+ if(stars)for(let i=0;i<5;i++){const a=stars*3+i*1.256;T('★',P.x+Math.cos(a)*18,P.y-20+Math.sin(a)*6,10,'#ffd84d','center')}}
 function draw(){R(0,0,360,640,'#000');
  if(mode==='title'){R(0,0,360,640,'#1a0a0a');for(let i=0;i<40;i++)R((i*97)%360,(i*53)%600,2,2,'#633');
   R(150,170,60,100,'#7a1010');R(156,176,48,88,'#c82020');R(156,206,48,24,'#fff');T('COLA',180,218,12,'#c82020','center');R(166,160,28,12,'#888');
@@ -138,10 +163,12 @@ function draw(){R(0,0,360,640,'#000');
  if(mode==='over'){R(0,0,360,640,'#200');T('GAME OVER',180,220,36,'#e33','center');let y=290;for(const l of wrapText(deathReason,300,16)){T(l,180,y,16,'#fff','center');y+=24}
   R(btnRe.x,btnRe.y,btnRe.w,btnRe.h,'#ffd84d');T('다시 하기',180,btnRe.y+22,18,'#000','center');return}
  if(mode==='end'){R(0,0,360,640,'#000');T('계속...(다음 장면 제작 중)',180,320,18,'#fff','center');return}
- R(0,0,360,40,'#111');T(name+'의 방',12,20,13,'#ffd84d');T(flags.fridge?'목표: 편의점에 가자':'목표: 콜라를 찾자',348,20,11,'#aaa','right');
- drawRoom();drawPlayer();drawDialog();drawControls()}
+ R(0,0,360,40,'#111');T(mapId==='road'?'편의점 가는 길':name+'의 방',12,20,13,'#ffd84d');T(mapId==='road'?'목표: 콜라 사러 가기':flags.fridge?'목표: 편의점에 가자':'목표: 콜라를 찾자',348,20,11,'#aaa','right');
+ if(black){R(0,40,360,400,'#000')}else{ctx.save();if(shake>0)ctx.translate((Math.random()-.5)*10,(Math.random()-.5)*10);
+ if(mapId==='road'){drawRoad();drawPlayer();}else{drawRoom();drawPlayer()}ctx.restore();if(fade>0){ctx.globalAlpha=fade;R(0,40,360,400,'#000');ctx.globalAlpha=1}}
+ drawDialog();drawControls()}
 let last=0;function loop(t){const dt=Math.min(.05,(t-last)/1000||0);last=t;gt+=dt;update(dt);draw();requestAnimationFrame(loop)}requestAnimationFrame(loop);
-window.__rpg2={get mode(){return mode},get name(){return name},flags,get noCount(){return noCount},get death(){return deathReason},P,
+window.__rpg2={get mode(){return mode},get map(){return mapId},rf,get sign(){return sign},get black(){return black},get name(){return name},flags,get noCount(){return noCount},get death(){return deathReason},P,
  get line(){return cur?(cur.choice||cur.t):null},get speaker(){return cur?cur.s||null:null},get isChoice(){return !!(cur&&cur.choice)},get sel(){return choiceSel},
  setPos(x,y,d){P.x=x;P.y=y;P.dir=d||P.dir;P.seated=false},interact,A,B,blocked};
 </script></body></html>

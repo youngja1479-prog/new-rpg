@@ -43,7 +43,7 @@ function updateIntro(dt){const t=intro.t+=dt;gateOpen=Math.min(1,t/1);if(t>1){co
  if(t>2.3)slimes.forEach((sl,i)=>{const was=sl.pop;sl.pop=Math.max(0,Math.min(1,(t-2.3-i*.2)/.25));if(was===0&&sl.pop>0)beep(400+i*120,.12,'square',.05,300)});
  if(t>3.1){intro=null;iframe=.5}}
 function fieldDeath(reason){deathReason=reason;retryField=true;mode='over';queue=[];cur=null;bagOpen=false}
-function throwBoom(){if(boom)return;const d=P.aim||D[P.dir];boom={x:P.x,y:P.y-4,vx:d[0]*300,vy:d[1]*300,t:0,back:false,a:0,trail:[],hit:new Set()};beep(600,.12,'sawtooth',.03,400)}
+function throwBoom(){if(boom)return;let d=P.aim||D[P.dir];let tg=null,bd=1e9;for(const sl of slimes)if(sl.hp>0){const q=Math.hypot(sl.x-P.x,sl.y-P.y);if(q<bd){bd=q;tg=sl}}if(tg){const m=bd||1;d=[(tg.x-P.x)/m,(tg.y-P.y+4)/m]}boom={x:P.x,y:P.y-4,vx:d[0]*300,vy:d[1]*300,t:0,back:false,a:0,trail:[],hit:new Set()};beep(600,.12,'sawtooth',.03,400)}
 function doRoll(){if(roll||rollCd>0)return;const d=P.aim||D[P.dir];roll={t:.25,dx:d[0],dy:d[1]};iframe=Math.max(iframe,.4);rollCd=.8;beep(300,.08,'triangle',.05,-100)}
 function useCola(){const r=drinkColaInBattle();if(!r)return;bagOpen=false;
  if(r.dead)say([...r.lines,{fn:()=>fieldDeath('간장 콜라를 마시고 쓰러졌다. (콜라인 줄 알았는데 간장이었다)')}]);else P.hp=Math.min(PMAX,P.hp+r.heal)}

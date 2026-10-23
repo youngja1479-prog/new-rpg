@@ -1,0 +1,190 @@
+<!DOCTYPE html><html lang="ko"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,user-scalable=no">
+<title>킬링게임 등교 RPG</title><style>
+html,body{margin:0;height:100%;background:#000;overflow:hidden;touch-action:none;user-select:none;-webkit-user-select:none}
+#wrap{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%)}
+canvas{display:block;width:100%;height:100%;image-rendering:pixelated}
+</style></head><body><div id="wrap"><canvas id="c" width="360" height="640"></canvas></div>
+<script>
+const cv=document.getElementById('c'),ctx=cv.getContext('2d'),wrap=document.getElementById('wrap');
+let S=1;function fit(){S=Math.min(innerWidth/360,innerHeight/640);wrap.style.width=360*S+'px';wrap.style.height=640*S+'px'}
+addEventListener('resize',fit);fit();
+function R(x,y,w,h,c){ctx.fillStyle=c;ctx.fillRect(x|0,y|0,w|0,h|0)}
+function T(s,x,y,sz,c,al){ctx.font='bold '+sz+'px sans-serif';ctx.fillStyle=c;ctx.textAlign=al||'left';ctx.textBaseline='middle';ctx.fillText(s,x,y)}
+let AC=null;function beep(f,d){try{AC=AC||new AudioContext();const o=AC.createOscillator(),g=AC.createGain();o.frequency.value=f;g.gain.value=.05;o.connect(g);g.connect(AC.destination);o.start();o.stop(AC.currentTime+d)}catch(e){}}
+// ===== bedroom (port of bed.py, 90x160 grid) =====
+const room=document.createElement('canvas');room.width=90;room.height=160;
+(function(){const g=room.getContext('2d');const Q=(x,y,w,h,c)=>{g.fillStyle=c;g.fillRect(x,y,w,h)};
+Q(0,0,90,160,'#1b1b26');
+Q(6,22,78,132,'#8a6a4a');for(let y=22;y<154;y+=6)Q(6,y,78,1,'#74583c');
+{let i=0;for(let y=22;y<154;y+=6,i++)for(let x=6+(i%2)*12;x<84;x+=24)Q(x,y,1,6,'#74583c')}
+Q(0,0,90,22,'#4a5470');Q(0,20,90,2,'#2c3248');Q(0,0,6,160,'#2c3248');Q(84,0,6,160,'#2c3248');Q(0,154,90,6,'#2c3248');
+Q(32,4,26,13,'#d8e6f0');Q(32,4,26,1,'#6b4a30');Q(32,16,26,1,'#6b4a30');Q(32,4,1,13,'#6b4a30');Q(57,4,1,13,'#6b4a30');Q(45,4,1,13,'#6b4a30');
+Q(29,3,4,15,'#c9b8d8');Q(57,3,4,15,'#c9b8d8');
+const id=g.getImageData(0,0,90,160),d=id.data;
+for(let y=22;y<60;y++)for(let x=34+((y-22)/3|0);x<56+((y-22)/3|0);x++)if(x<84){const k=(y*90+x)*4;d[k]=Math.min(255,d[k]+25);d[k+1]=Math.min(255,d[k+1]+22);d[k+2]=Math.min(255,d[k+2]+12)}
+g.putImageData(id,0,0);
+Q(8,24,22,40,'#5a3a24');Q(9,25,20,9,'#f0eee6');Q(9,34,20,29,'#3f5aa0');Q(9,34,20,2,'#5a76c0');for(let y=40;y<62;y+=5)Q(10,y,18,1,'#33498a');
+Q(31,24,7,7,'#6b4a30');Q(33,26,3,2,'#e04848');
+Q(58,24,24,12,'#7a5434');Q(58,35,24,2,'#5a3a24');Q(61,26,7,5,'#3a3a46');Q(70,26,4,3,'#2a8a4a');Q(76,26,4,6,'#c8c8d0');
+// ADDED: pile of books on desk (same style as bookshelf books)
+Q(69,30,6,1,'#c84848');Q(69,31,6,1,'#4878c8');Q(70,32,5,1,'#e0c040');Q(69,33,6,1,'#48a868');Q(69,34,6,1,'#c84848');
+Q(66,39,8,7,'#4a4a58');Q(66,39,8,2,'#5e5e70');
+Q(72,64,12,30,'#6b4a30');Q(78,64,1,30,'#4e3420');Q(76,78,1,2,'#d8b860');Q(80,78,1,2,'#d8b860');
+Q(6,80,10,30,'#6b4a30');{let i=0;for(let y=82;y<108;y+=6,i++){let j=0;for(let x=7;x<15;x+=2,j++)Q(x,y,2,5,['#c84848','#4878c8','#e0c040','#48a868'][(i+j)%4])}}
+Q(30,96,30,20,'#8a2e3a');Q(32,98,26,16,'#b04a52');Q(34,100,22,12,'#8a2e3a');
+Q(38,148,14,8,'#5a3a24');Q(39,149,12,6,'#7a5434');Q(49,152,1,1,'#d8b860');
+for(const [x,y,w,h,c,dc] of [[10,118,3,2,'#e03030','#a01818'],[68,140,4,3,'#f0d020','#b09010'],[22,146,3,2,'#3060e0','#1838a0']]){Q(x,y,w,h,c);Q(x,y+h-1,w,1,dc);for(let sx=x;sx<x+w-1;sx+=2)Q(sx,y,1,1,dc)}
+Q(70,120,5,5,'#e03030');Q(70,124,5,1,'#a01818');Q(71,119,1,1,'#a01818');Q(73,119,1,1,'#a01818');
+})();
+const WALLS=[[0,0,90,22],[0,0,6,160],[84,0,6,160],[0,154,38,6],[52,154,38,6],[8,24,22,40],[31,24,7,7],[58,24,24,13],[66,39,8,7],[72,64,12,30],[6,80,10,30]];
+const LEGO=[[10,118,3,2],[68,140,4,3],[22,146,3,2],[70,119,5,6]],RUG=[30,96,30,20],DESKZ=[57,23,26,15],DOOR=[38,148,14,8];
+// ===== endings (names = script death lines) =====
+const ENDS=[{id:'bed',n:'선생님에게 뒤지게 쳐맞아죽었다'},{id:'uniform',n:'엎드리다가 팔이 부러져 사망'},{id:'lego',n:'레고 밟고 사망'},{id:'desk',n:'책상에 있는 책이 쓰러져 사망했다'},{id:'rug',n:'카펫에 미끄러져 사망했다'},{id:'window',n:'창문에서 떨어져 사망'}];
+let seen={};try{seen=JSON.parse(localStorage.getItem('schoolRpgDeaths')||'{}')}catch(e){}
+function record(id){seen[id]=1;try{localStorage.setItem('schoolRpgDeaths',JSON.stringify(seen))}catch(e){}}
+// ===== state =====
+let mode='title',scene='room',gt=0,uniform=false,teacher=null,raise=false,black=false,alarm=false,deathId=null,fallT=0,colOpen=false,lastMode=null,wake=0,showStart=false,shake=0;
+const P={x:18,y:44,dir:'down',step:0,lying:true};
+let queue=[],cur=null,onEnd=null;
+function say(list,end){queue=list.slice();onEnd=end||null;next()}
+function next(){cur=queue.shift()||null;if(cur&&cur.fn){const f=cur.fn;f();if(cur&&cur.fn===f){if(cur.wait===undefined)next()}}if(!cur&&onEnd){const f=onEnd;onEnd=null;f()}}
+const L=(s,t)=>({s,t}),N=t=>({t}),F=fn=>({fn}),W=(w,fn)=>({wait:w,fn:fn||null});
+function reset(){scene='room';uniform=false;teacher=null;raise=false;black=false;alarm=false;deathId=null;fallT=0;P.x=18;P.y=44;P.dir='down';P.lying=true;wake=0;showStart=false}
+function opening(){reset();mode='play';alarm=true;beep(880,.2);
+ say([N('(알람이 울린다)'),L('플레이어','(알람을 끄며)'),F(()=>alarm=false),L('플레이어','아.... 등교하기 싫다.'),L('플레이어','등교하는 날은 기분도 우울하고, 정신이 나갈 것 같고, 그냥 몸이 아파,'),L('플레이어','몸이 조각날 것 같아.'),L('플레이어','나는 현실에 사는게 맞을까? 학교 가는 날이면 내 몸이 학교를 가는건지. 내 영혼이 학교를 가는건지 모르겠다......'),L('플레이어','일단 학교 가라니까 가야지.'),{t:'시작',big:1}],()=>{wake=0.001})}
+function die(id){deathId=id;record(id);beep(120,.4);mode='dead'}
+function deathSeq(id){mode='cut';P.step=0;
+ const S={
+ bed:[L('플레이어','학교 뭐, 어쩌라고, 내가 이럴 줄 알고, 부모님 폰으로 담임쌤 연락처를 차단해놨지.'),L('플레이어','부모님이 알 방법은 없어.'),L('플레이어','그냥 잘거야!'),F(()=>{P.lying=true;P.x=18;P.y=44;black=true}),N('(3시간 동안 잔 후 - 검은 화면)'),N('(검은 화면 끝)'),F(()=>{black=false;teacher={x:22,y:72}}),L('플레이어','어... 잘잤 어???'),L('선생님','안녕? 드디어 일어났어?'),L('플레이어','어..... 아직도 꿈인가보다......'),F(()=>raise=true),L('선생님','(회초리를 들며)'),L('선생님','꿈이 아니란다?'),F(()=>shake=.5),N('(선생님에게 뒤지게 쳐맞아죽었다)')],
+ uniform:[F(()=>{scene='gate';P.lying=false;P.x=45;P.y=92;P.dir='up';teacher={x:45,y:66}}),N('(학교 교문 배경)'),L('플레이어','하.... 드디어 학교까지 왔네.....'),L('선생님','너 왜 교복 안입고 왔어?'),L('플레이어','어.... 선생님....'),L('플레이어','그.... 그게....'),L('선생님','업드려'),F(()=>{P.lying=true;shake=.5}),N('(엎드리다가 팔이 부러져 사망)')],
+ lego:[L('플레이어','이..... 발 바닥에 균열이 생길 것 같은 이 느낌은......'),L('플레이어','으....윽.....'),L('플레이어','레고다!!!!!'),F(()=>{P.lying=true;shake=.4}),N('(레고 밟고 사망)')],
+ desk:[F(()=>{fallT=.001;shake=.4}),W(.8),F(()=>P.lying=true),N('(책상에 있는 책이 쓰러져 사망했다)')],
+ rug:[F(()=>{P.lying=true;shake=.3}),N('(카펫에 미끄러져 사망했다)')],
+ window:[L('플레이어','우리집은 1층'),L('플레이어','심지어 창문 쪽으로 가면 학교는 직진,'),L('플레이어','즉, 엄청 빠른 지름길이 있는 셈이지.'),L('플레이어','가자!!!!'),N('(잠시만......)'),L('플레이어','어.... 우리집 1층에서 15층으로 이사했지?'),L('플레이어','으악!!!!!'),F(()=>{P.y=-50;shake=.5}),N('(창문에서 떨어져 사망)')]};
+ say(S[id],()=>die(id))}
+function goodEnd(){mode='cut';say([F(()=>{scene='gate';P.lying=false;P.x=45;P.y=92;P.dir='up';teacher={x:45,y:66}}),W(1)],()=>{mode='clear'})}
+// ===== input =====
+const keys={};let joy={on:false,id:null,cx:70,cy:560,dx:0,dy:0};
+const btnA={x:300,y:560,r:30},btnB={x:236,y:592,r:24},btnCol={x:236,y:530,r:19},btnRe=[110,250,140,44],btnRcol=[110,306,140,40],btnT1=[100,330,160,48],btnT2=[100,396,160,44];
+const hit=(x,y,r)=>x>=r[0]&&x<r[0]+r[2]&&y>=r[1]&&y<r[1]+r[3];
+function toggleCol(){if(colOpen){colOpen=false;return}if(mode==='play'&&!cur||mode==='title'||mode==='dead'||mode==='clear')colOpen=true}
+function A(){if(colOpen){colOpen=false;return}
+ if(mode==='title'){opening();return}
+ if(mode==='dead'||mode==='clear'){opening();return}
+ if(cur){if(cur.wait===undefined)next();return}
+ if(mode==='play'&&!P.lying)interact()}
+function B(){if(colOpen)colOpen=false}
+function near(r,m){const b=box();return b[0]<r[0]+r[2]+m&&b[0]+b[2]>r[0]-m&&b[1]<r[1]+r[3]+m&&b[1]+b[3]>r[1]-m}
+function interact(){
+ if(near([8,24,22,40],3)){deathSeq('bed');return}
+ if(P.y<=31&&P.x>=33&&P.x<=58){deathSeq('window');return}
+ if(near([72,64,12,30],3)){if(!uniform){uniform=true;beep(660,.1);say([N('(옷장을 열었다. 교복을 입었다.)')])}else say([N('(옷장)')]);return}}
+addEventListener('keydown',e=>{const k=e.key;keys[k.toLowerCase()]=true;
+ if(k==='z'||k==='Z'||k==='Enter'||k===' '){A();e.preventDefault()}else if(k==='x'||k==='X'||k==='Escape'){B();e.preventDefault()}else if(k==='c'||k==='C')toggleCol();
+ if(k.startsWith('Arrow'))e.preventDefault()});
+addEventListener('keyup',e=>{keys[e.key.toLowerCase()]=false});
+function cp(t){const b=cv.getBoundingClientRect();return{x:(t.clientX-b.left)*360/b.width,y:(t.clientY-b.top)*640/b.height}}
+function down(p,id){
+ if(Math.hypot(p.x-btnCol.x,p.y-btnCol.y)<btnCol.r+6&&mode!=='title'){toggleCol();return}
+ if(colOpen){colOpen=false;return}
+ if(mode==='title'){if(hit(p.x,p.y,btnT2))toggleCol();else if(hit(p.x,p.y,btnT1))opening();return}
+ if(mode==='dead'||mode==='clear'){if(hit(p.x,p.y,btnRe))opening();else if(hit(p.x,p.y,btnRcol))toggleCol();return}
+ if(Math.hypot(p.x-btnA.x,p.y-btnA.y)<btnA.r+8){A();return}
+ if(Math.hypot(p.x-btnB.x,p.y-btnB.y)<btnB.r+8){B();return}
+ if(p.y>460&&p.x<180){joy.on=true;joy.id=id;joy.cx=p.x;joy.cy=p.y;joy.dx=joy.dy=0}
+ else if(cur&&cur.wait===undefined&&p.y<440)next()}
+function move(p,id){if(joy.on&&joy.id===id){let dx=p.x-joy.cx,dy=p.y-joy.cy,m=Math.hypot(dx,dy);if(m>36){dx*=36/m;dy*=36/m}joy.dx=dx;joy.dy=dy}}
+function up(id){if(joy.id===id){joy.on=false;joy.dx=joy.dy=0;joy.id=null}}
+cv.addEventListener('touchstart',e=>{e.preventDefault();for(const t of e.changedTouches)down(cp(t),t.identifier)},{passive:false});
+cv.addEventListener('touchmove',e=>{e.preventDefault();for(const t of e.changedTouches)move(cp(t),t.identifier)},{passive:false});
+cv.addEventListener('touchend',e=>{e.preventDefault();for(const t of e.changedTouches)up(t.identifier)},{passive:false});
+cv.addEventListener('mousedown',e=>down(cp(e),'m'));addEventListener('mousemove',e=>move(cp(e),'m'));addEventListener('mouseup',()=>up('m'));
+// ===== update =====
+function box(x=P.x,y=P.y){return[x-2,y-2,4,3]} // feet box, grid units; P = feet center
+const ov=(a,b)=>a[0]<b[0]+b[2]&&a[0]+a[2]>b[0]&&a[1]<b[1]+b[3]&&a[1]+a[3]>b[1];
+function blocked(x,y){const b=box(x,y);return WALLS.some(w=>ov(b,w))}
+function update(dt){gt+=dt;if(shake>0)shake-=dt;if(fallT)fallT+=dt;
+ if(wake){wake+=dt;if(wake>.8){wake=0;P.lying=false;P.x=19;P.y=68;P.dir='down'}else return}
+ if(cur&&cur.wait!==undefined){cur.wait-=dt;if(cur.wait<=0)next();return}
+ if(mode!=='play'||cur||colOpen||P.lying)return;
+ let dx=0,dy=0;if(keys.arrowleft||keys.a)dx--;if(keys.arrowright||keys.d)dx++;if(keys.arrowup||keys.w)dy--;if(keys.arrowdown||keys.s)dy++;
+ if(joy.on&&Math.hypot(joy.dx,joy.dy)>8){dx=joy.dx/36;dy=joy.dy/36}
+ const m=Math.hypot(dx,dy);if(m<.1){P.step=0;return}if(m>1){dx/=m;dy/=m}
+ P.dir=Math.abs(dx)>Math.abs(dy)?(dx<0?'left':'right'):(dy<0?'up':'down');P.step+=dt*8;
+ const sp=22*dt;if(!blocked(P.x+dx*sp,P.y))P.x+=dx*sp;if(!blocked(P.x,P.y+dy*sp))P.y+=dy*sp;
+ checkZones()}
+function checkZones(){const b=box();
+ if(LEGO.some(l=>ov(b,l))){deathSeq('lego');return}
+ if(ov(b,RUG)){deathSeq('rug');return}
+ if(ov(b,DESKZ)){deathSeq('desk');return}
+ if(P.y>=152&&ov(b,DOOR)){if(uniform)goodEnd();else deathSeq('uniform')}}
+// ===== draw =====
+function drawPlayer(ox,oy,s){const x=ox+P.x*s,y=oy+P.y*s,q=s/4;const r=(a,b,w,h,c)=>R(x+a*q,y+b*q,w*q,h*q,c);
+ if(P.lying){r(-14,-10,28,10,'#00000033');r(-14,-12,8,8,'#f0c8a0');r(-14,-13,8,3,'#3a2414');r(-6,-11,16,7,uniform?'#2a3a6a':'#e8e8e8');r(10,-10,6,5,'#555');return}
+ const st=Math.floor(P.step)%2;
+ r(-7,-2,14,4,'#00000033');r(-5,-8,4,8-(st?2:0),'#333');r(1,-8,4,8-(st?0:2),'#333');
+ r(-7,-20,14,13,uniform?'#2a3a6a':'#e8e8e8');if(uniform){r(-1,-19,2,8,'#c33')}r(-9,-19,2,9,'#f0c8a0');r(7,-19,2,9,'#f0c8a0');
+ r(-6,-32,12,12,'#f0c8a0');r(-7,-34,14,5,'#3a2414');
+ if(P.dir==='down'){r(-3,-26,2,2,'#000');r(1,-26,2,2,'#000')}else if(P.dir==='left')r(-5,-26,2,2,'#000');else if(P.dir==='right')r(3,-26,2,2,'#000');else r(-6,-31,12,6,'#3a2414')}
+// shared teacher sprite (grid units x4). raise = cane raised frame
+function drawTeacher(ox,oy,tx,ty,rs){const x=ox+tx*4,y=oy+ty*4;const r=(a,b,w,h,c)=>R(x+a*4,y+b*4,w*4,h*4,c);
+ r(-3,-1,6,1,'#00000033');r(-2,-5,2,5,'#2a2a30');r(0,-5,2,5,'#2a2a30');r(-3,-11,6,7,'#5a4a3a');r(-1,-11,2,4,'#e8e8e8');r(0,-10,1,3,'#a02020');
+ r(-2,-16,4,5,'#e8c098');r(-2,-17,4,2,'#555');r(-3,-16,1,2,'#555');r(2,-16,1,2,'#555');r(-2,-14,4,1,'#222');r(-1,-12,2,1,'#a06040');
+ r(-4,-11,1,5,'#5a4a3a');
+ if(rs){r(3,-14,1,4,'#5a4a3a');r(3,-15,1,1,'#e8c098');r(3,-22,1,7,'#a07040');r(4,-23,1,2,'#a07040')}
+ else{r(3,-11,1,5,'#5a4a3a');r(3,-6,1,1,'#e8c098');r(4,-6,1,6,'#a07040')}}
+function drawGate(oy){const r=(a,b,w,h,c)=>R(a*4,oy+b*4,w*4,h*4,c);
+ r(0,0,90,40,'#8fc4e8');r(10,6,14,4,'#f0f4f8');r(60,10,18,4,'#f0f4f8');
+ r(12,14,66,30,'#d8c8a8');for(let i=0;i<6;i++)r(16+i*10,18,6,6,'#6a8ab8'),r(16+i*10,30,6,6,'#6a8ab8');r(40,8,10,8,'#d8c8a8');r(43,10,4,4,'#fff');r(45,11,1,2,'#333');
+ r(0,44,90,66,'#9a9a9a');for(let y=44;y<110;y+=6)r(0,y,90,1,'#8a8a8a');
+ r(0,40,90,6,'#6a7a5a');r(0,38,90,2,'#4a5a3a');
+ r(18,30,6,22,'#a8a8b0');r(66,30,6,22,'#a8a8b0');r(17,28,8,3,'#88889a');r(65,28,8,3,'#88889a');r(24,32,42,3,'#5a5a6a');T('',0,0,1,'#000');
+ for(let x=26;x<66;x+=4)r(x,35,1,14,'#5a5a6a');r(19,36,4,6,'#e8e0c0');r(20,37,2,1,'#333');r(20,39,2,1,'#333');
+ r(8,52,74,1,'#ffffff55')}
+function drawWorld(){const VH=440;let oy=0,cam=0;
+ if(scene==='room'){cam=Math.max(0,Math.min(640-VH,P.y*4-240));oy=-cam;ctx.save();ctx.beginPath();ctx.rect(0,0,360,VH);ctx.clip();
+  if(shake>0)ctx.translate((Math.random()-.5)*8,(Math.random()-.5)*8);
+  ctx.imageSmoothingEnabled=false;ctx.drawImage(room,0,oy,360,640);
+  if(fallT){const k=Math.min(1,fallT*2);R(66*4+k*8,oy+(30+k*16)*4,24,4,'#c84848');R(70*4-k*6,oy+(32+k*18)*4,20,4,'#4878c8');R(68*4,oy+(34+k*14)*4,24,4,'#e0c040')}
+  if(alarm&&Math.floor(gt*6)%2){T('♪ 따르릉!',140,oy+100,18,'#ffd84d','center')}
+  if(wake){P.x=18+wake*2;P.y=44+wake*30}
+  if(P.y>-40)drawPlayer(0,oy,4);
+  if(teacher)drawTeacher(0,oy,teacher.x,teacher.y,raise);
+  ctx.restore()}
+ else{ctx.save();if(shake>0)ctx.translate((Math.random()-.5)*8,(Math.random()-.5)*8);drawGate(0);if(teacher)drawTeacher(0,0,teacher.x,teacher.y,raise);drawPlayer(0,0,4);ctx.restore()}
+ if(black)R(0,0,360,440,'#000')}
+function wrapText(s,w,sz){ctx.font='bold '+sz+'px sans-serif';const out=[];let line='';for(const ch of s){if(ctx.measureText(line+ch).width>w){out.push(line);line=ch}else line+=ch}if(line)out.push(line);return out}
+function drawDialog(){if(!cur||cur.wait!==undefined||cur.fn)return;
+ if(cur.big){R(100,200,160,56,'#ffd84d');T(cur.t,180,228,24,'#000','center');return}
+ R(10,330,340,104,'rgba(10,10,30,.92)');ctx.strokeStyle='#fff';ctx.lineWidth=2;ctx.strokeRect(11,331,338,102);
+ let y=354;if(cur.s){ctx.font='bold 13px sans-serif';R(18,320,ctx.measureText(cur.s).width+20,22,'#ffd84d');T(cur.s,28,331,13,'#000')}
+ for(const l of wrapText(cur.t,316,14)){T(l,22,y,14,'#fff');y+=21}
+ if(Math.floor(gt*2)%2)T('▼',334,422,10,'#ffd84d','center')}
+function drawControls(){R(0,440,360,200,'#15151f');R(0,440,360,2,'#333');
+ ctx.globalAlpha=.9;ctx.fillStyle='#2a2a3a';ctx.beginPath();ctx.arc(joy.on?joy.cx:70,joy.on?joy.cy:560,44,0,7);ctx.fill();
+ ctx.fillStyle='#556';ctx.beginPath();ctx.arc((joy.on?joy.cx:70)+joy.dx,(joy.on?joy.cy:560)+joy.dy,20,0,7);ctx.fill();
+ ctx.fillStyle='#c33';ctx.beginPath();ctx.arc(btnA.x,btnA.y,btnA.r,0,7);ctx.fill();ctx.fillStyle='#36c';ctx.beginPath();ctx.arc(btnB.x,btnB.y,btnB.r,0,7);ctx.fill();
+ ctx.fillStyle='#8a6a3a';ctx.beginPath();ctx.arc(btnCol.x,btnCol.y,btnCol.r,0,7);ctx.fill();ctx.globalAlpha=1;
+ R(btnCol.x-8,btnCol.y-9,16,18,'#e8e0c0');R(btnCol.x-8,btnCol.y-9,3,18,'#a03030');T(Object.keys(seen).length+'',btnCol.x+2,btnCol.y+1,10,'#000','center');
+ T('A',btnA.x,btnA.y,20,'#fff','center');T('B',btnB.x,btnB.y,18,'#fff','center');T('모음집',btnCol.x,btnCol.y+28,9,'#cba','center');
+ T('Z/Enter=A(조사)  X=B  C=모음집  방향키/WASD 이동',180,628,10,'#778','center')}
+function drawCollection(){R(0,0,360,440,'rgba(0,0,0,.88)');R(20,40,320,370,'#1c1a24');ctx.strokeStyle='#ffd84d';ctx.lineWidth=2;ctx.strokeRect(21,41,318,368);
+ const n=ENDS.filter(e=>seen[e.id]).length;T('사망 모음집  '+n+'/6',180,70,18,'#ffd84d','center');
+ ENDS.forEach((e,i)=>{const y=96+i*50;R(34,y,292,42,seen[e.id]?'#3a2a2a':'#2a2a34');T((i+1)+'.',46,y+21,14,'#888');
+  const ls=seen[e.id]?wrapText(e.n,250,13):['???'];ls.forEach((l,j)=>T(l,68,y+21+(j-(ls.length-1)/2)*16,13,seen[e.id]?'#fff':'#666'))});
+ T('터치/A: 닫기',180,396,11,'#888','center')}
+function draw(){R(0,0,360,640,'#000');
+ if(mode==='title'){R(0,0,360,440,'#1b1b26');ctx.imageSmoothingEnabled=false;ctx.globalAlpha=.35;ctx.drawImage(room,0,-60,360,640);ctx.globalAlpha=1;
+  T('킬링게임',180,150,36,'#e04848','center');T('등교 RPG',180,200,32,'#fff','center');T('사망 모음집을 채워라',180,250,14,'#ccc','center');
+  R(...btnT1,'#ffd84d');T('시작',180,354,20,'#000','center');R(...btnT2,'#8a6a3a');T('사망 모음집 '+Object.keys(seen).length+'/6',180,418,15,'#fff','center');drawControls();if(colOpen)drawCollection();return}
+ drawWorld();drawDialog();
+ if(mode==='dead'||mode==='clear'){R(0,0,360,440,'rgba(0,0,0,.72)');
+  if(mode==='dead'){T('사망 엔딩',180,120,16,'#e04848','center');const e=ENDS.find(x=>x.id===deathId);wrapText(e.n,300,20).forEach((l,i)=>T(l,180,168+i*28,20,'#fff','center'));T('모음집 '+Object.keys(seen).length+'/6',180,226,13,'#ffd84d','center')}
+  else{T('교문 도착!',180,130,22,'#ffd84d','center');T('다음 편에 계속',180,180,26,'#fff','center')}
+  R(...btnRe,'#ffd84d');T('다시 하기',180,272,17,'#000','center');R(...btnRcol,'#8a6a3a');T('모음집',180,326,15,'#fff','center')}
+ drawControls();if(colOpen)drawCollection()}
+let last=performance.now();function loop(t){const dt=Math.min(.05,(t-last)/1000);last=t;update(dt);draw();requestAnimationFrame(loop)}requestAnimationFrame(loop);
+window.__school={get mode(){return mode},get scene(){return scene},P,get cur(){return cur},get seen(){return seen},get uniform(){return uniform},ENDS,A,B,toggleCol,opening,deathSeq,
+ skip(){let i=0;while(cur&&i++<200){if(cur.wait!==undefined){cur.wait=0;next()}else next()}if(wake){wake=0;P.lying=false;P.x=19;P.y=68}},
+ tp(x,y){P.x=x;P.y=y;checkZones()},setRaise(v){raise=v}};
+</script></body></html>

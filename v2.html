@@ -31,8 +31,30 @@ const W=(t)=>({wait:t}),U=(p)=>({wait:99,until:p}),F=(fn)=>({fn});
 function crosswalk1(){rf.c1=true;P.dir='down';say([L('(빨간불이다.)'),PL('......'),PL('왜 내 인생은 이따구지.'),PL('취업은 언제 하지... 자소서만 47번째다.'),PL('엄마는 또 "옆집 철수는~" 하겠지.'),PL('아 빨리 이 세상 뜨든가 해야지.'),W(.6),F(()=>{rf.green=true;beep(880,.1);setTimeout(()=>beep(880,.1),180)}),L('(삐뽀- 초록불이 켜졌다.)')])}
 function crosswalk2(){rf.c2=true;P.dir='down';say([PL('.......'),PL('어? 원래 이런 상황이면 트럭에 치여 죽던가 하지 않나?'),F(()=>P.dir='left'),W(.4),F(()=>P.dir='right'),W(.4),F(()=>P.dir='down'),L('(좌우 두리번)'),PL('...역시 그런 일이 생길 리가 없지. 이세계는 무슨.'),PL('콜라나 사러 가자—'),
  F(()=>{sign={x:P.x,y:-30,ty:P.y-30};beep(1200,.6,'sine',.04,-900)}),U(()=>sign.y>=sign.ty),F(()=>{noise(.5,.35);beep(90,.4,'square',.15,-50);shake=.7;stars=1;P.fallen=true}),W(1.6),
- F(()=>{fadeT=1}),U(()=>fade>=1),F(()=>{black=true;stars=0;sign=null}),W(.6),L('......'),PL('...간판에 맞아서 죽은 줄 알았는데...'),F(()=>{mode='end'})])}
-function opening(){mapId='room';black=false;fade=0;fadeT=null;P.fallen=false;sign=null;P.x=85;P.y=132;P.dir='up';P.seated=true;mode='room';
+ F(()=>{fadeT=1}),U(()=>fade>=1),F(()=>{black=true;stars=0;sign=null}),W(.6),L('......'),PL('...간판에 맞아서 죽은 줄 알았는데...'),F(goHall),W(1.6),F(hallScene)])}
+let white=0,summon=0,inv=[];
+const ITEMS={boomerang:{name:'부메랑',type:'weapon'},cola:{name:'콜라',type:'heal',heal:10,desc:'HP+10 회복',soy:true}};
+function addItem(id,n){const it=inv.find(i=>i.id===id);if(it)it.count+=n;else inv.push({id,name:ITEMS[id].name,count:n})}
+function jingle(){[523,659,784,1047].forEach((f,i)=>setTimeout(()=>beep(f,.15,'square',.05),i*110))}
+// stub for later battle: returns script steps; caller handles HP/death screen
+function drinkColaInBattle(){const it=inv.find(i=>i.id==='cola');if(!it||it.count<1)return null;it.count--;
+ if(ITEMS.cola.soy)return{dead:true,reason:'콜라인 줄 알았는데 간장이었다.',lines:[PL('...어? 맛이 이상한데...?'),PL('이건... 간장이잖아!!!!')]};return{dead:false,heal:ITEMS.cola.heal,lines:[]}}
+function goHall(){mapId='hall';black=false;fade=0;fadeT=null;P.fallen=false;sign=null;stars=0;P.x=180;P.y=318;P.dir='up';white=1;summon=1;beep(300,1.2,'sine',.06,900)}
+const K=t=>({t,s:'왕'}),M=t=>({t,s:'마법사'});
+function hallScene(){say([K('어.... 용사인가?'),M('어.... 못생겼지만 그런가봅니다.'),PL('......? (방금 뭐라고?)'),K('뭐.... 최종보스보다는 잘생겼으니. 용사 아니겠나. 껌껌껌'),PL('.......(뭔가 기분 나빠, 최종보스는 얼마나 못생겼길래.....)'),
+ K('이 왕국에 몬스터가 쳐들어왔다네, 당신이 우리를 구원해주어야 하네.'),K('여기 최고의 생존자가 사용한 부메랑이라네. 잘 사용하시게나.'),F(()=>{addItem('boomerang',1);jingle()}),L('★ 부메랑을 획득했다! ★'),
+ PL('(부메랑...? 칼 같은 건 없나...?)'),K('아 추가적으로 콜라 2병을 주겠네.'),F(()=>{addItem('cola',2);jingle()}),L('★ 콜라 2병을 획득했다! ★'),PL('(!!!! 콜라) 열심히 하겠습니다!!!!'),K('그래 성문 밖은 이미 몬스터 천지라네... 조심하게나.'),F(()=>{mode='end'})])}
+function drawHall(){for(let y=80;y<440;y+=20)for(let x=0;x<360;x+=20)R(x,y,20,20,((x+y)/20)%2?'#4c4c58':'#555564');
+ R(0,40,360,46,'#3a3a48');for(let x=0;x<360;x+=30)R(x,40,1,46,'#2a2a36');for(const x of[60,276]){R(x,44,24,38,'#a02030');R(x,78,6,6,'#a02030');R(x+18,78,6,6,'#a02030');R(x+8,56,8,8,'#ffd84d')}
+ R(150,86,60,354,'#8a1a2a');R(154,86,52,354,'#a82838');R(154,86,2,354,'#d8b040');R(204,86,2,354,'#d8b040');
+ R(156,84,48,58,'#c8a030');R(160,88,40,50,'#a02030');R(152,120,8,26,'#c8a030');R(200,120,8,26,'#c8a030');
+ // king
+ R(168,108,24,30,'#6a1a8a');R(166,112,28,6,'#fff');R(172,96,16,14,'#f5c99a');R(172,108,16,6,'#eee');R(174,101,3,3,'#000');R(183,101,3,3,'#000');R(170,90,20,6,'#ffd84d');R(170,86,4,4,'#ffd84d');R(178,86,4,4,'#ffd84d');R(186,86,4,4,'#ffd84d');R(179,92,2,2,'#e33');
+ // wizard
+ R(240,140,28,36,'#5a2a9a');R(244,128,20,14,'#f0d0b0');R(244,138,20,14,'#ddd');R(240,112,28,18,'#4a1a8a');R(248,102,12,12,'#4a1a8a');R(252,96,6,8,'#4a1a8a');R(248,132,3,3,'#000');R(257,132,3,3,'#000');R(272,110,3,66,'#8a5a2a');R(269,104,9,9,'#4df');
+ for(const x of [30,330]){R(x-10,90,20,340,'#6a6a78');R(x-12,90,24,8,'#7a7a88');R(x-12,422,24,8,'#7a7a88');R(x-10,90,3,340,'#8a8a98');const fl=Math.floor(gt*8)%2;R(x-4,150,8,10,'#5a3a1a');R(x-4,140-fl,8,8,'#f93');R(x-2,136-fl,4,5,'#ff4')}
+ if(summon){const cx=180,cy=322;ctx.globalAlpha=Math.min(1,summon)*(.25+.1*Math.sin(gt*4));R(cx-30,40,60,cy-40,'#cff');ctx.globalAlpha=1;ctx.strokeStyle='#8ff';ctx.lineWidth=2;ctx.beginPath();ctx.ellipse(cx,cy,60,22,0,0,7);ctx.stroke();ctx.beginPath();ctx.ellipse(cx,cy,44,15,0,0,7);ctx.stroke();for(let i=0;i<8;i++){const a=gt*1.5+i*.785;R(cx+Math.cos(a)*52-2,cy+Math.sin(a)*18-2,4,4,'#fff')}}}
+function opening(){inv.length=0;white=0;summon=0;mapId='room';black=false;fade=0;fadeT=null;P.fallen=false;sign=null;P.x=85;P.y=132;P.dir='up';P.seated=true;mode='room';
  say([L('(딸깍딸깍... 딸깍...)'),PL('크으... 이번 판도 졌다. 팀운이 없어, 팀운이.'),PL('아 목말라... 콜라 마시고 싶다.'),askStand()])}
 function askStand(){return CH('콜라를 마시기 위해 일어날까?',()=>say([PL('냉장고에 하나 남아있었던 것 같은데.')],()=>{P.seated=false;P.y=146;P.dir='down'}),
  ()=>{noCount++;if(noCount===1)say([L('(목 마르지만 게임을 계속한다.)'),L('(또 패배)'),PL('으.... 또 졌어. 아니 ## 왜 궁을 안써. 저 ##는'),PL('으 목 탄다.'),askStand()]);
@@ -93,7 +115,7 @@ cv.addEventListener('touchmove',e=>{e.preventDefault();for(const t of e.changedT
 cv.addEventListener('touchend',e=>{e.preventDefault();for(const t of e.changedTouches)up(t.identifier)},{passive:false});
 cv.addEventListener('mousedown',e=>down(cp(e),'m'));addEventListener('mousemove',e=>move(cp(e),'m'));addEventListener('mouseup',()=>up('m'));
 // update
-function update(dt){if(shake>0)shake-=dt;if(stars)stars+=dt;if(sign&&sign.y<sign.ty)sign.y=Math.min(sign.ty,sign.y+540*dt);
+function update(dt){if(white>0)white=Math.max(0,white-dt/1.4);if(summon&&mapId==='hall'&&!white)summon=Math.max(.001,summon-dt*.2);if(shake>0)shake-=dt;if(stars)stars+=dt;if(sign&&sign.y<sign.ty)sign.y=Math.min(sign.ty,sign.y+540*dt);
  if(fadeT!==null)fade=Math.min(fadeT,fade+dt/1.2);
  if(cur&&cur.wait!==undefined){if(cur.until){if(cur.until())next()}else{cur.wait-=dt;if(cur.wait<=0)next()}return}
  if(mode!=='room'||cur||P.seated)return;
@@ -163,12 +185,12 @@ function draw(){R(0,0,360,640,'#000');
  if(mode==='over'){R(0,0,360,640,'#200');T('GAME OVER',180,220,36,'#e33','center');let y=290;for(const l of wrapText(deathReason,300,16)){T(l,180,y,16,'#fff','center');y+=24}
   R(btnRe.x,btnRe.y,btnRe.w,btnRe.h,'#ffd84d');T('다시 하기',180,btnRe.y+22,18,'#000','center');return}
  if(mode==='end'){R(0,0,360,640,'#000');T('계속...(다음 장면 제작 중)',180,320,18,'#fff','center');return}
- R(0,0,360,40,'#111');T(mapId==='road'?'편의점 가는 길':name+'의 방',12,20,13,'#ffd84d');T(mapId==='road'?'목표: 콜라 사러 가기':flags.fridge?'목표: 편의점에 가자':'목표: 콜라를 찾자',348,20,11,'#aaa','right');
+ R(0,0,360,40,'#111');T(mapId==='hall'?'왕궁 알현실':mapId==='road'?'편의점 가는 길':name+'의 방',12,20,13,'#ffd84d');T(mapId==='hall'?'':mapId==='road'?'목표: 콜라 사러 가기':flags.fridge?'목표: 편의점에 가자':'목표: 콜라를 찾자',348,20,11,'#aaa','right');
  if(black){R(0,40,360,400,'#000')}else{ctx.save();if(shake>0)ctx.translate((Math.random()-.5)*10,(Math.random()-.5)*10);
- if(mapId==='road'){drawRoad();drawPlayer();}else{drawRoom();drawPlayer()}ctx.restore();if(fade>0){ctx.globalAlpha=fade;R(0,40,360,400,'#000');ctx.globalAlpha=1}}
+ if(mapId==='road'){drawRoad();drawPlayer();}else if(mapId==='hall'){drawHall();drawPlayer()}else{drawRoom();drawPlayer()}ctx.restore();if(fade>0){ctx.globalAlpha=fade;R(0,40,360,400,'#000');ctx.globalAlpha=1}if(white>0){ctx.globalAlpha=white;R(0,40,360,400,'#fff');ctx.globalAlpha=1}}
  drawDialog();drawControls()}
 let last=0;function loop(t){const dt=Math.min(.05,(t-last)/1000||0);last=t;gt+=dt;update(dt);draw();requestAnimationFrame(loop)}requestAnimationFrame(loop);
-window.__rpg2={get mode(){return mode},get map(){return mapId},rf,get sign(){return sign},get black(){return black},get name(){return name},flags,get noCount(){return noCount},get death(){return deathReason},P,
+window.__rpg2={inv,ITEMS,drinkColaInBattle,get white(){return white},get mode(){return mode},get map(){return mapId},rf,get sign(){return sign},get black(){return black},get name(){return name},flags,get noCount(){return noCount},get death(){return deathReason},P,
  get line(){return cur?(cur.choice||cur.t):null},get speaker(){return cur?cur.s||null:null},get isChoice(){return !!(cur&&cur.choice)},get sel(){return choiceSel},
  setPos(x,y,d){P.x=x;P.y=y;P.dir=d||P.dir;P.seated=false},interact,A,B,blocked};
 </script></body></html>

@@ -173,7 +173,7 @@ function down(p,id){
  if(cur&&cur.choice){const rs=choiceRects();for(let i=0;i<2;i++)if(hit(p.x,p.y,rs[i])){choose(i);return}}
  if(p.y>460&&p.x<180){joy.on=true;joy.id=id;joy.cx=p.x;joy.cy=p.y;joy.dx=joy.dy=0}
  else if(cur&&!cur.choice&&cur.wait===undefined&&p.y<460)next()}
-function move(p,id){if(joy.on&&joy.id===id){let dx=p.x-joy.cx,dy=p.y-joy.cy,m=Math.hypot(dx,dy);if(m>36){dx*=36/m;dy*=36/m}joy.dx=dx;joy.dy=dy}}
+function move(p,id){if(joy.on&&joy.id===id){let dx=p.x-joy.cx,dy=p.y-joy.cy,m=Math.hypot(dx,dy);if(m>36){dx*=36/m;dy*=36/m}joy.dx=dx;joy.dy=dy;if(cur&&cur.choice&&Math.abs(dx)>14)choiceSel=dx<0?0:1}}
 function up(id){if(joy.id===id){joy.on=false;joy.dx=joy.dy=0;joy.id=null}}
 cv.addEventListener('touchstart',e=>{e.preventDefault();for(const t of e.changedTouches)down(cp(t),t.identifier)},{passive:false});
 cv.addEventListener('touchmove',e=>{e.preventDefault();for(const t of e.changedTouches)move(cp(t),t.identifier)},{passive:false});

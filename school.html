@@ -39,17 +39,17 @@ Q(70,120,5,5,'#e03030');Q(70,124,5,1,'#a01818');Q(71,119,1,1,'#a01818');Q(73,119
 const WALLS=[[0,0,90,22],[0,0,6,160],[84,0,6,160],[0,154,38,6],[52,154,38,6],[8,24,22,40],[31,24,7,7],[58,24,24,13],[66,39,8,7],[72,64,12,30],[6,80,10,30]];
 const LEGO=[[10,118,3,2],[68,140,4,3],[22,146,3,2],[70,119,5,6]],RUG=[30,96,30,20],DESKZ=[57,23,26,15],DOOR=[38,148,14,8];
 // ===== endings (names = script death lines) =====
-const ENDS=[{id:'bed',n:'선생님에게 뒤지게 쳐맞아죽었다'},{id:'uniform',n:'엎드리다가 팔이 부러져 사망'},{id:'lego',n:'레고 밟고 사망'},{id:'desk',n:'책상에 있는 책이 쓰러져 사망했다'},{id:'rug',n:'카펫에 미끄러져 사망했다'},{id:'window',n:'창문에서 떨어져 사망'}];
+const ENDS=[{id:'bed',n:'선생님에게 뒤지게 쳐맞아죽었다'},{id:'uniform',n:'엎드리다가 팔이 부러져 사망'},{id:'lego',n:'레고 밟고 사망'},{id:'desk',n:'책상에 있는 책이 쓰러져 사망했다'},{id:'rug',n:'카펫에 미끄러져 사망했다'},{id:'window',n:'창문에서 떨어져 사망'},{id:'shelf',n:'책장의 책에 깔려 사망했다'}];
 let seen={};try{seen=JSON.parse(localStorage.getItem('schoolRpgDeaths')||'{}')}catch(e){}
 function record(id){seen[id]=1;try{localStorage.setItem('schoolRpgDeaths',JSON.stringify(seen))}catch(e){}}
 // ===== state =====
-let mode='title',scene='room',gt=0,uniform=false,teacher=null,raise=false,black=false,alarm=false,deathId=null,fallT=0,colOpen=false,lastMode=null,wake=0,showStart=false,shake=0;
+let mode='title',scene='room',gt=0,uniform=false,teacher=null,raise=false,black=false,alarm=false,deathId=null,fallT=0,shelfT=0,colOpen=false,lastMode=null,wake=0,showStart=false,shake=0;
 const P={x:18,y:44,dir:'down',step:0,lying:true};
 let queue=[],cur=null,onEnd=null;
 function say(list,end){queue=list.slice();onEnd=end||null;next()}
 function next(){cur=queue.shift()||null;if(cur&&cur.fn){const f=cur.fn;f();if(cur&&cur.fn===f){if(cur.wait===undefined)next()}}if(!cur&&onEnd){const f=onEnd;onEnd=null;f()}}
 const L=(s,t)=>({s,t}),N=t=>({t}),F=fn=>({fn}),W=(w,fn)=>({wait:w,fn:fn||null});
-function reset(){scene='room';uniform=false;teacher=null;raise=false;black=false;alarm=false;deathId=null;fallT=0;P.x=18;P.y=44;P.dir='down';P.lying=true;wake=0;showStart=false}
+function reset(){scene='room';uniform=false;teacher=null;raise=false;black=false;alarm=false;deathId=null;fallT=0;shelfT=0;P.x=18;P.y=44;P.dir='down';P.lying=true;wake=0;showStart=false}
 function opening(){reset();mode='play';alarm=true;beep(880,.2);
  say([N('(알람이 울린다)'),L('플레이어','(알람을 끄며)'),F(()=>alarm=false),L('플레이어','아.... 등교하기 싫다.'),L('플레이어','등교하는 날은 기분도 우울하고, 정신이 나갈 것 같고, 그냥 몸이 아파,'),L('플레이어','몸이 조각날 것 같아.'),L('플레이어','나는 현실에 사는게 맞을까? 학교 가는 날이면 내 몸이 학교를 가는건지. 내 영혼이 학교를 가는건지 모르겠다......'),L('플레이어','일단 학교 가라니까 가야지.'),{t:'시작',big:1}],()=>{wake=0.001})}
 function die(id){deathId=id;record(id);beep(120,.4);mode='dead'}
@@ -59,6 +59,7 @@ function deathSeq(id){mode='cut';P.step=0;
  uniform:[F(()=>{scene='gate';P.lying=false;P.x=45;P.y=92;P.dir='up';teacher={x:45,y:66}}),N('(학교 교문 배경)'),L('플레이어','하.... 드디어 학교까지 왔네.....'),L('선생님','너 왜 교복 안입고 왔어?'),L('플레이어','어.... 선생님....'),L('플레이어','그.... 그게....'),L('선생님','업드려'),F(()=>{P.lying=true;shake=.5}),N('(엎드리다가 팔이 부러져 사망)')],
  lego:[L('플레이어','이..... 발 바닥에 균열이 생길 것 같은 이 느낌은......'),L('플레이어','으....윽.....'),L('플레이어','레고다!!!!!'),F(()=>{P.lying=true;shake=.4}),N('(레고 밟고 사망)')],
  desk:[F(()=>{fallT=.001;shake=.4}),W(.8),F(()=>P.lying=true),N('(책상에 있는 책이 쓰러져 사망했다)')],
+ shelf:[L('플레이어','오늘 수업에 필요한 책이 여기 어디 있었는데......'),L('플레이어','맨 위 칸인가? 조금만 당기면......'),F(()=>{beep(300,.15);shake=.2}),N('(우르르...)'),L('플레이어','어? 책장이 왜 흔들리지?'),F(()=>{shelfT=.001;shake=.5}),W(1),F(()=>P.lying=true),N('(책장의 책에 깔려 사망했다)')],
  rug:[F(()=>{P.lying=true;shake=.3}),N('(카펫에 미끄러져 사망했다)')],
  window:[L('플레이어','우리집은 1층'),L('플레이어','심지어 창문 쪽으로 가면 학교는 직진,'),L('플레이어','즉, 엄청 빠른 지름길이 있는 셈이지.'),L('플레이어','가자!!!!'),N('(잠시만......)'),L('플레이어','어.... 우리집 1층에서 15층으로 이사했지?'),L('플레이어','으악!!!!!'),F(()=>{P.y=-50;shake=.5}),N('(창문에서 떨어져 사망)')]};
  say(S[id],()=>die(id))}
@@ -77,6 +78,7 @@ function B(){if(colOpen)colOpen=false}
 function near(r,m){const b=box();return b[0]<r[0]+r[2]+m&&b[0]+b[2]>r[0]-m&&b[1]<r[1]+r[3]+m&&b[1]+b[3]>r[1]-m}
 function interact(){
  if(near([8,24,22,40],3)){deathSeq('bed');return}
+ if(near([6,80,10,30],3)){deathSeq('shelf');return}
  if(P.y<=31&&P.x>=33&&P.x<=58){deathSeq('window');return}
  if(near([72,64,12,30],3)){if(!uniform){uniform=true;beep(660,.1);say([N('(옷장을 열었다. 교복을 입었다.)')])}else say([N('(옷장)')]);return}}
 addEventListener('keydown',e=>{const k=e.key;keys[k.toLowerCase()]=true;
@@ -103,7 +105,7 @@ cv.addEventListener('mousedown',e=>down(cp(e),'m'));addEventListener('mousemove'
 function box(x=P.x,y=P.y){return[x-2,y-2,4,3]} // feet box, grid units; P = feet center
 const ov=(a,b)=>a[0]<b[0]+b[2]&&a[0]+a[2]>b[0]&&a[1]<b[1]+b[3]&&a[1]+a[3]>b[1];
 function blocked(x,y){const b=box(x,y);return WALLS.some(w=>ov(b,w))}
-function update(dt){gt+=dt;if(shake>0)shake-=dt;if(fallT)fallT+=dt;
+function update(dt){gt+=dt;if(shake>0)shake-=dt;if(fallT)fallT+=dt;if(shelfT)shelfT+=dt;
  if(wake){wake+=dt;if(wake>.8){wake=0;P.lying=false;P.x=19;P.y=68;P.dir='down'}else return}
  if(cur&&cur.wait!==undefined){cur.wait-=dt;if(cur.wait<=0)next();return}
  if(mode!=='play'||cur||colOpen||P.lying)return;
@@ -146,9 +148,11 @@ function drawWorld(){const VH=440;let oy=0,cam=0;
   if(shake>0)ctx.translate((Math.random()-.5)*8,(Math.random()-.5)*8);
   ctx.imageSmoothingEnabled=false;ctx.drawImage(room,0,oy,360,640);
   if(fallT){const k=Math.min(1,fallT*2);R(66*4+k*8,oy+(30+k*16)*4,24,4,'#c84848');R(70*4-k*6,oy+(32+k*18)*4,20,4,'#4878c8');R(68*4,oy+(34+k*14)*4,24,4,'#e0c040')}
+  if(shelfT){const C=['#c84848','#4878c8','#e0c040','#48a868'];for(let i=0;i<9;i++){const t=Math.max(0,Math.min(1,shelfT*2.2-i*.12)),sx=(8+(i%4)*2)*4,sy=(82+(i>>2)*6)*4,ex=(P.x-5+(i*7%11))*4,ey=(P.y-4-(i%3)*2)*4+oy;R(sx+(ex-sx)*t,sy+oy+(ey-sy-oy)*t*t,i%2?16:10,i%2?6:16,C[i%4])}}
   if(alarm&&Math.floor(gt*6)%2){T('♪ 따르릉!',140,oy+100,18,'#ffd84d','center')}
   if(wake){P.x=18+wake*2;P.y=44+wake*30}
   if(P.y>-40)drawPlayer(0,oy,4);
+  if(shelfT>.6){const C=['#c84848','#4878c8','#e0c040','#48a868'];for(let i=0;i<6;i++)R((P.x-6+i*2)*4,oy+(P.y-4-(i%2)*2)*4,14,7,C[i%4])}
   if(teacher)drawTeacher(0,oy,teacher.x,teacher.y,raise);
   ctx.restore()}
  else{ctx.save();if(shake>0)ctx.translate((Math.random()-.5)*8,(Math.random()-.5)*8);drawGate(0);if(teacher)drawTeacher(0,0,teacher.x,teacher.y,raise);drawPlayer(0,0,4);ctx.restore()}
@@ -169,17 +173,17 @@ function drawControls(){R(0,440,360,200,'#15151f');R(0,440,360,2,'#333');
  T('A',btnA.x,btnA.y,20,'#fff','center');T('B',btnB.x,btnB.y,18,'#fff','center');T('모음집',btnCol.x,btnCol.y+28,9,'#cba','center');
  T('Z/Enter=A(조사)  X=B  C=모음집  방향키/WASD 이동',180,628,10,'#778','center')}
 function drawCollection(){R(0,0,360,440,'rgba(0,0,0,.88)');R(20,40,320,370,'#1c1a24');ctx.strokeStyle='#ffd84d';ctx.lineWidth=2;ctx.strokeRect(21,41,318,368);
- const n=ENDS.filter(e=>seen[e.id]).length;T('사망 모음집  '+n+'/6',180,70,18,'#ffd84d','center');
- ENDS.forEach((e,i)=>{const y=96+i*50;R(34,y,292,42,seen[e.id]?'#3a2a2a':'#2a2a34');T((i+1)+'.',46,y+21,14,'#888');
-  const ls=seen[e.id]?wrapText(e.n,250,13):['???'];ls.forEach((l,j)=>T(l,68,y+21+(j-(ls.length-1)/2)*16,13,seen[e.id]?'#fff':'#666'))});
- T('터치/A: 닫기',180,396,11,'#888','center')}
+ const n=ENDS.filter(e=>seen[e.id]).length;T('사망 모음집  '+n+'/7',180,70,18,'#ffd84d','center');
+ ENDS.forEach((e,i)=>{const y=88+i*43;R(34,y,292,38,seen[e.id]?'#3a2a2a':'#2a2a34');T((i+1)+'.',46,y+19,14,'#888');
+  const ls=seen[e.id]?wrapText(e.n,250,13):['???'];ls.forEach((l,j)=>T(l,68,y+19+(j-(ls.length-1)/2)*16,13,seen[e.id]?'#fff':'#666'))});
+ T('터치/A: 닫기',180,400,11,'#888','center')}
 function draw(){R(0,0,360,640,'#000');
  if(mode==='title'){R(0,0,360,440,'#1b1b26');ctx.imageSmoothingEnabled=false;ctx.globalAlpha=.35;ctx.drawImage(room,0,-60,360,640);ctx.globalAlpha=1;
   T('킬링게임',180,150,36,'#e04848','center');T('등교 RPG',180,200,32,'#fff','center');T('사망 모음집을 채워라',180,250,14,'#ccc','center');
-  R(...btnT1,'#ffd84d');T('시작',180,354,20,'#000','center');R(...btnT2,'#8a6a3a');T('사망 모음집 '+Object.keys(seen).length+'/6',180,418,15,'#fff','center');drawControls();if(colOpen)drawCollection();return}
+  R(...btnT1,'#ffd84d');T('시작',180,354,20,'#000','center');R(...btnT2,'#8a6a3a');T('사망 모음집 '+Object.keys(seen).length+'/7',180,418,15,'#fff','center');drawControls();if(colOpen)drawCollection();return}
  drawWorld();drawDialog();
  if(mode==='dead'||mode==='clear'){R(0,0,360,440,'rgba(0,0,0,.72)');
-  if(mode==='dead'){T('사망 엔딩',180,120,16,'#e04848','center');const e=ENDS.find(x=>x.id===deathId);wrapText(e.n,300,20).forEach((l,i)=>T(l,180,168+i*28,20,'#fff','center'));T('모음집 '+Object.keys(seen).length+'/6',180,226,13,'#ffd84d','center')}
+  if(mode==='dead'){T('사망 엔딩',180,120,16,'#e04848','center');const e=ENDS.find(x=>x.id===deathId);wrapText(e.n,300,20).forEach((l,i)=>T(l,180,168+i*28,20,'#fff','center'));T('모음집 '+Object.keys(seen).length+'/7',180,226,13,'#ffd84d','center')}
   else{T('교문 도착!',180,130,22,'#ffd84d','center');T('다음 편에 계속',180,180,26,'#fff','center')}
   R(...btnRe,'#ffd84d');T('다시 하기',180,272,17,'#000','center');R(...btnRcol,'#8a6a3a');T('모음집',180,326,15,'#fff','center')}
  drawControls();if(colOpen)drawCollection()}

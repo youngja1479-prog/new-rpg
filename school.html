@@ -106,7 +106,7 @@ function deathSeq(id){mode='cut';P.step=0;
  rug:[F(()=>{P.lying=true;shake=.3}),N('(카펫에 미끄러져 사망했다)')],
  window:[L('플레이어','우리집은 1층'),L('플레이어','심지어 창문 쪽으로 가면 학교는 직진,'),L('플레이어','즉, 엄청 빠른 지름길이 있는 셈이지.'),L('플레이어','가자!!!!'),N('(잠시만......)'),L('플레이어','어.... 우리집 1층에서 15층으로 이사했지?'),L('플레이어','으악!!!!!'),F(()=>{P.y=-50;shake=.5}),N('(창문에서 떨어져 사망)')]};
  say(S[id],()=>die(id))}
-function goodEnd(){if(bunny){deathSeq('bunny');return}if(!uniform){deathSeq('uniform');return}mode='cut';say([F(()=>{scene='gate';P.lying=false;P.x=45;P.y=92;P.dir='up';teacher={x:45,y:66}}),W(1)],()=>{mode='clear'})}
+function goodEnd(){if(bunny){deathSeq('bunny');return}mode='cut';say([F(()=>{scene='gate';P.lying=false;P.x=45;P.y=92;P.dir='up';teacher={x:45,y:66}}),W(1)],()=>{mode='clear'})}
 // ===== input =====
 const keys={};let joy={on:false,id:null,cx:70,cy:560,dx:0,dy:0};
 const btnA={x:300,y:560,r:30},btnB={x:236,y:592,r:24},btnCol={x:236,y:530,r:19},btnRe=[110,250,140,44],btnRcol=[110,306,140,40],btnT1=[100,330,160,48],btnT2=[100,396,160,44];
@@ -124,7 +124,7 @@ function interact(){
  if(scene==='outside'){if(near(OBENCH,3)){deathSeq('bench');return}if(near(OLAKE,3)){deathSeq('lake');return}if(near(OSTORE,3)){deathSeq('store');return}return}
  if(scene==='living'){
   if((near(LSLIP,2)||near(LSNEAK,2))&&P.x<47){deathSeq('slipper');return}
-  if(near(LSNEAK,2)){goOutside();return}
+  if(near(LSNEAK,2)){if(!uniform)deathSeq('uniform');else if(bunny)deathSeq('bunny');else goOutside();return}
   if(near(LTABLE,2)){deathSeq('food');return}
   if(near(LFRIDGE,3)&&P.y>=108){deathSeq('fridge');return}
   if(near(LKITCHEN,3)){deathSeq('kitchen');return}

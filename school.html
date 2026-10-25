@@ -166,7 +166,7 @@ function update(dt){gt+=dt;if(shake>0)shake-=dt;if(fallT)fallT+=dt;if(shelfT)she
  if(cur&&cur.wait!==undefined){cur.wait-=dt;if(cur.wait<=0)next();return}
  if(mode!=='play'||cur||colOpen||P.lying)return;
  if(scene==='living'){roach.t-=dt;if(roach.t<=0){roach.a=Math.random()*7;roach.t=.4+Math.random()*1.2}const nx=roach.x+Math.cos(roach.a)*14*dt,ny=roach.y+Math.sin(roach.a)*14*dt,rb=[nx-1,ny-1,2,2];if(nx<20||nx>80||ny<84||ny>138||LWALLS.some(w=>ov(rb,w)))roach.t=0;else{roach.x=nx;roach.y=ny}if(Math.hypot(P.x-roach.x,P.y-roach.y)<6){deathSeq('roach');return}}
- if(scene==='outside'){rollT+=dt;while(rollT>=1){rollT-=1;if(Math.random()<.025){deathSeq('bolt');return}if(onGrass(P.x,P.y)&&Math.random()<.05){deathSeq('ant');return}}}
+ if(scene==='outside'){rollT+=dt;while(rollT>=1){rollT-=1;if(Math.random()<.001){deathSeq('bolt');return}if(onGrass(P.x,P.y)&&Math.random()<.05){deathSeq('ant');return}}}
  let dx=0,dy=0;if(keys.arrowleft||keys.a)dx--;if(keys.arrowright||keys.d)dx++;if(keys.arrowup||keys.w)dy--;if(keys.arrowdown||keys.s)dy++;
  if(joy.on&&Math.hypot(joy.dx,joy.dy)>8){dx=joy.dx/36;dy=joy.dy/36}
  const m=Math.hypot(dx,dy);if(m<.1){P.step=0;return}if(m>1){dx/=m;dy/=m}

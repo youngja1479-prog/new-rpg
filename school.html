@@ -134,7 +134,7 @@ function interact(){
  if(near([8,24,22,40],3)){deathSeq('bed');return}
  if(near([6,80,10,30],3)){deathSeq('shelf');return}
  if(P.y<=31&&P.x>=33&&P.x<=58){deathSeq('window');return}
- if(near([72,64,12,30],3)){if(!uniform){uniform=true;beep(660,.1);if(Math.random()<.08){bunny=true;say([N('(옷장을 열었다. 교복... 이 아니라 바니걸 복장을 입었다?!)')])}else say([N('(옷장을 열었다. 교복을 입었다.)')])}else say([N('(옷장)')]);return}}
+ if(near([72,64,12,30],3)){if(!uniform){uniform=true;beep(660,.1);if(Math.random()<.1){bunny=true;say([N('(옷장을 열었다. 교복... 이 아니라 바니걸 복장을 입었다?!)')])}else say([N('(옷장을 열었다. 교복을 입었다.)')])}else say([N('(옷장)')]);return}}
 addEventListener('keydown',e=>{const k=e.key;keys[k.toLowerCase()]=true;
  if(k==='z'||k==='Z'||k==='Enter'||k===' '){A();e.preventDefault()}else if(k==='x'||k==='X'||k==='Escape'){B();e.preventDefault()}else if(k==='c'||k==='C')toggleCol();
  if(cur&&cur.choice&&/^(arrowup|arrowdown|w|s)$/.test(k.toLowerCase()))cur.sel=1-cur.sel;
@@ -185,7 +185,7 @@ function checkZones(){const b=box();
   if(onRoad&&(b[0]<38||b[0]+b[2]>54||(!wasRoad&&!green()))){fx={t:'car',k:0,y:P.y};deathSeq('car');return}
   wasRoad=onRoad;
   if(nr(ODOG,2)){deathSeq('dog');return}
-  if(OLIGHTS.some(l=>nr(l,1))){fx={t:'light',k:0,l:OLIGHTS.find(l=>nr(l,1))};deathSeq('light');return}
+  if(OLIGHTS.some(l=>nr(l,1.5))){fx={t:'light',k:0,l:OLIGHTS.find(l=>nr(l,1.5))};deathSeq('light');return}
   if(OTREES.some(t=>nr(t,2))){const tr=OTREES.find(t=>nr(t,2));deathSeq('tree');fx={t:'tree',k:0,tr};return}
   if(nr(OCONS,2)){deathSeq('cons');return}
   if(nr(OTRASH,2)){deathSeq('trash');return}

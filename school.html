@@ -161,7 +161,7 @@ function interact(){
  if(scene==='outside'){if(near(OBENCH,3)){deathSeq('bench');return}if(near(OLAKE,3)){deathSeq('lake');return}if(near(OSTORE,3)){deathSeq('store');return}return}
  if(scene==='pg'){if(near(PSWING,3)){deathSeq('swing');return}if(near(PSAND,3)){deathSeq('slide');return}if(near(PBARS,3)){deathSeq('bar');return}return}
  if(scene==='living'){
-  if((near(LSLIP,2)||near(LSNEAK,2))&&P.x<47){deathSeq('slipper');return}
+  if((near(LSLIP,2)||near(LSNEAK,2))&&P.x<47){deathSeq(bunny?'bunny':'slipper');return}
   if(near(LSNEAK,2)){if(!uniform)deathSeq('uniform');else if(bunny)deathSeq('bunny');else goOutside();return}
   if(near(LTABLE,2)){deathSeq('food');return}
   if(near(LFRIDGE,3)&&P.y>=108){deathSeq('fridge');return}

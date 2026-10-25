@@ -247,7 +247,7 @@ function drawWorld(){const VH=440;let oy=0,cam=0;
 function wrapText(s,w,sz){ctx.font='bold '+sz+'px sans-serif';const out=[];let line='';for(const ch of s){if(ctx.measureText(line+ch).width>w){out.push(line);line=ch}else line+=ch}if(line)out.push(line);return out}
 function drawDialog(){if(!cur||cur.wait!==undefined||cur.fn)return;
  if(cur.big){R(100,200,160,56,'#ffd84d');T(cur.t,180,228,24,'#000','center');return}
- if(cur.s==='미녀'&&IMG.portrait.complete)ctx.drawImage(IMG.portrait,236,150,110,147);ctx.strokeStyle='#ffd84d';ctx.lineWidth=3;ctx.strokeRect(236,150,110,147);
+ if(cur.s==='미녀'&&IMG.portrait.complete){ctx.drawImage(IMG.portrait,236,150,110,147);ctx.strokeStyle='#ffd84d';ctx.lineWidth=3;ctx.strokeRect(236,150,110,147);}
  R(10,330,340,104,'rgba(10,10,30,.92)');ctx.strokeStyle='#fff';ctx.lineWidth=2;ctx.strokeRect(11,331,338,102);
  let y=354;if(cur.s){ctx.font='bold 13px sans-serif';R(18,320,ctx.measureText(cur.s).width+20,22,'#ffd84d');T(cur.s,28,331,13,'#000')}
  for(const l of wrapText(cur.t,316,14)){T(l,22,y,14,'#fff');y+=21}

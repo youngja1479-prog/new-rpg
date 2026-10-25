@@ -52,10 +52,38 @@ function goOutside(){scene='outside';P.x=45;P.y=26;P.dir='down';P.lying=false;wa
 const GRASS=document.createElement('canvas');let GD=null;function onGrass(x,y){if(!GD){if(!IMG.outside.complete)return false;GRASS.width=360;GRASS.height=1280;const g=GRASS.getContext('2d');g.drawImage(IMG.outside,0,0);GD=g.getImageData(0,0,360,1280).data}const i=((Math.round(y*4)-2)*360+Math.round(x*4))*4;const r=GD[i],gg=GD[i+1],b=GD[i+2];return gg>r+40&&gg>b+40}
 // ===== endings (names = script death lines) =====
 const ENDS=[{id:'bed',n:'선생님에게 뒤지게 쳐맞아죽었다'},{id:'uniform',n:'엎드리다가 팔이 부러져 사망'},{id:'lego',n:'레고 밟고 사망'},{id:'desk',n:'책상에 있는 책이 쓰러져 사망했다'},{id:'rug',n:'카펫에 미끄러져 사망했다'},{id:'window',n:'창문에서 떨어져 사망'},{id:'shelf',n:'책장의 책에 깔려 사망했다'},{id:'tv',n:'선생님에게 쳐맞아서 사망'},{id:'sofa',n:'소파에서 늦잠 자다 선생님에게 맞아 사망'},{id:'fridge',n:'사회적으로 사망'},{id:'clock',n:'벽시계가 떨어져 사망'},{id:'table',n:'식탁기둥에 새끼발가락 박아서 사망'},{id:'kitchen',n:'폭발로 사망'},{id:'slipper',n:'슬리퍼 신고 등교했다가 선생님에게 맞아 사망'},
- {id:'dog',n:'강아지에게 물려 사망'},{id:'car',n:'차에 치여 사망'},{id:'tree',n:'나무가 쓰러져 깔려 사망'},{id:'cons',n:'철판이 떨어져 사망'},{id:'lake',n:'상어에 물려 사망'},{id:'bench',n:'벤치에서 잠들어 지각, 선생님에게 맞아 사망'},{id:'hole',n:'맨홀에 빠져 사망'},{id:'light',n:'신호등이 쓰러져 사망'},{id:'store',n:'편의점 간판에 맞아 사망'},{id:'trash',n:'코가 썩어서 사망'},{id:'kang',n:'눈이 썩고, 토하다 내장까지 토해서 사망'},{id:'confess',n:'턱주가리 날아가서 사망'},{id:'noconfess',n:'고자 돼서 사망'},{id:'bunny',n:'총 맞아 사망'},{id:'ant',n:'개미에 물려 사망'},{id:'bolt',n:'벼락 맞아 사망'},{id:'roach',n:'충격으로 사망'},{id:'food',n:'사회적으로 사망 (반찬)'},{id:'lcarpet',n:'카펫에 미끄러져 사망했다 (거실)'},{id:'meteor',n:'교문 앞에서 운석 맞아 사망'},{id:'pigeon',n:'비둘기 떼에 휩쓸려 사망'},{id:'nowake',n:'일어나지 못해 사망'},{id:'eardrum',n:'고막이 터져 사망'}];
+ {id:'dog',n:'강아지에게 물려 사망'},{id:'car',n:'차에 치여 사망'},{id:'tree',n:'나무가 쓰러져 깔려 사망'},{id:'cons',n:'철판이 떨어져 사망'},{id:'lake',n:'상어에 물려 사망'},{id:'bench',n:'벤치에서 잠들어 지각, 선생님에게 맞아 사망'},{id:'hole',n:'맨홀에 빠져 사망'},{id:'light',n:'신호등이 쓰러져 사망'},{id:'store',n:'편의점 간판에 맞아 사망'},{id:'trash',n:'코가 썩어서 사망'},{id:'kang',n:'눈이 썩고, 토하다 내장까지 토해서 사망'},{id:'confess',n:'턱주가리 날아가서 사망'},{id:'noconfess',n:'고자 돼서 사망'},{id:'bunny',n:'총 맞아 사망'},{id:'ant',n:'개미에 물려 사망'},{id:'bolt',n:'벼락 맞아 사망'},{id:'roach',n:'충격으로 사망'},{id:'food',n:'사회적으로 사망 (반찬)'},{id:'lcarpet',n:'카펫에 미끄러져 사망했다 (거실)'},{id:'meteor',n:'교문 앞에서 운석 맞아 사망'},{id:'pigeon',n:'비둘기 떼에 휩쓸려 사망'},{id:'nowake',n:'일어나지 못해 사망'},{id:'eardrum',n:'고막이 터져 사망'},{id:'friend',n:'친구에게 싸다구 맞아서 턱주가리 나가서 사망'},{id:'ball',n:'축구공에 턱주가리 나가서 사망'},{id:'swing',n:'그네로 인해 하늘로 날아간 다음 추락사'},{id:'slide',n:'몸무게가 너무 나가서 땅바닥까지 뚫고 내려가 사망'},{id:'bar',n:'턱걸이 하나도 못하고 근육통으로 사망'},{id:'hoop',n:'농구대 골대가 떨어져서 사망'},{id:'ptree',n:'나무가 쓰러져서 사망'}];
 try{localStorage.removeItem('schoolRpgDeaths')}catch(e){}
 let seen={};try{seen=JSON.parse(localStorage.getItem('schoolRpgDeaths_v2')||'{}')}catch(e){}
 function record(id){seen[id]=1;try{localStorage.setItem('schoolRpgDeaths_v2',JSON.stringify(seen))}catch(e){}}
+
+// ===== playground (운동장, 90x120 grid, x4 -> 360x480) =====
+IMG.pg=new Image();IMG.pg.src='data:image/png;base64,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';
+const PCX=45.25,PCY=74,PHOOP=[2,30,9,19],PTREES=[[0.6,52.5,9,11],[0.6,65.5,9,11],[81,100,8,8.5]],PSAND=[0.6,81,14.4,23],PBARS=[80,46,9,27],PBENCH=[81,73,8,4],PSWING=[77,81,12,13],PPOD=[34,33,22,7];
+const PWALLS=[[0,0,90,24],[0,24,37.5,5],[56,24,34,5],[0,0,1,120],[89,0,1,120],[0,105,36,9],[55,105,35,9],PPOD,PSAND,PBARS,PBENCH,PSWING,[5.5,36,1.2,13],...PTREES.map(t=>[t[0]+2,t[1]+4,5,t[3]-4])];
+const PENT=[37.5,24,18.5,7.5];
+let pg={fr:[],ball:{x:PCX,y:PCY,vx:0,vy:0},pause:0,goal:0,score:[0,0]};
+const PHOME=[{t:0,x:38,y:74},{t:0,x:30,y:64},{t:0,x:30,y:84},{t:1,x:54,y:68},{t:1,x:58,y:82}];
+function pgKick(){pg.fr=PHOME.map((h,i)=>({t:h.t,x:h.x,y:h.y,hx:h.x,hy:h.y,cd:.3+i*.05,dir:h.t?'left':'right',step:0}));Object.assign(pg.ball,{x:PCX,y:PCY,vx:0,vy:0});pg.pause=1}
+function goPlayground(){scene='pg';teacher=null;raise=false;P.x=45.5;P.y=117;P.dir='up';P.lying=false;fx=null;pg.goal=0;pgKick();mode='play'}
+function inEll(o,rx,ry){const ex=(o.x-PCX)/rx,ey=(o.y-PCY)/ry,d=Math.hypot(ex,ey);if(d>1){o.x=PCX+ex/d*rx;o.y=PCY+ey/d*ry;return[ex/d,ey/d]}return null}
+function pgUpdate(dt){const B=pg.ball;
+ if(pg.goal>0){pg.goal-=dt;if(pg.goal<=0)pgKick();return}
+ if(pg.pause>0){pg.pause-=dt;return}
+ B.x+=B.vx*dt;B.y+=B.vy*dt;const fr=Math.exp(-1.3*dt);B.vx*=fr;B.vy*=fr;
+ if(Math.abs(B.y-PCY)<5.5){if(B.x<21.6){pg.score[1]++;pg.goal=1.4;beep(990,.25);return}if(B.x>68.9){pg.score[0]++;pg.goal=1.4;beep(990,.25);return}}
+ const n=inEll(B,25,21);if(n){const dot=B.vx*n[0]*21/25+B.vy*n[1];B.vx=(B.vx-2*dot*n[0])*.6;B.vy=(B.vy-2*dot*n[1])*.6;B.vx-=n[0]*3;B.vy-=n[1]*3}
+ for(const tm of [0,1]){const team=pg.fr.filter(f=>f.t===tm),gx=tm?20:70.5;let ch=team[0],bd=1e9;for(const f of team){const d=Math.hypot(f.x-B.x,f.y-B.y);if(d<bd){bd=d;ch=f}}
+  for(const f of team){let tx,ty,sp;if(f===ch){const a=Math.atan2(PCY-B.y,gx-B.x);tx=B.x-Math.cos(a)*1.6;ty=B.y-Math.sin(a)*1.6;sp=15}else{tx=f.hx+(B.x-PCX)*.55+(tm?-4:4)*Math.sign(B.x-PCX||1)*0;ty=f.hy+(B.y-PCY)*.35+Math.sin(gt*1.3+f.hx)*2;sp=11}
+   const dx=tx-f.x,dy=ty-f.y,d=Math.hypot(dx,dy);if(d>.4){const m=Math.min(d,sp*dt);f.x+=dx/d*m;f.y+=dy/d*m;f.step+=dt*8;f.dir=Math.abs(dx)>Math.abs(dy)?(dx<0?'left':'right'):(dy<0?'up':'down')}else f.step=0;
+   f.cd-=dt;if(f.cd<=0&&Math.hypot(f.x-B.x,f.y-B.y)<3.2){const gd=Math.hypot(gx-B.x,PCY-B.y);let a,v;
+    if(gd<19){a=Math.atan2(PCY+(Math.random()*8-4)-B.y,gx-B.x);v=46;f.cd=.9;beep(300,.05)}
+    else{const mates=team.filter(o=>o!==f&&Math.abs(gx-o.x)<Math.abs(gx-f.x)-2);if(mates.length&&Math.random()<.4){const o=mates[Math.random()*mates.length|0];a=Math.atan2(o.y-B.y,o.x+(tm?-2:2)-B.x);v=Math.min(34,12+Math.hypot(o.x-B.x,o.y-B.y)*1.2);f.cd=.8}
+     else{a=Math.atan2(PCY-B.y,gx-B.x)+(Math.random()-.5)*1.1;v=17;f.cd=.35}}
+    B.vx=Math.cos(a)*v;B.vy=Math.sin(a)*v}}}
+ for(const f of pg.fr){for(const o of pg.fr)if(o!==f){const dx=f.x-o.x,dy=f.y-o.y,d=Math.hypot(dx,dy);if(d<3&&d>0){f.x+=dx/d*(3-d)*.5;f.y+=dy/d*(3-d)*.5}}inEll(f,22,19)}}
+function pgHits(){for(const f of pg.fr)if(Math.hypot(P.x-f.x,P.y-.5-f.y)<3.5){P.dir=f.x<P.x?'left':'right';deathSeq('friend');return true}
+ const B=pg.ball;if(Math.hypot(B.vx,B.vy)>5&&Math.hypot(P.x-B.x,P.y-1-B.y)<2.4){deathSeq('ball');return true}return false}
 // ===== state =====
 let mode='title',scene='room',gt=0,uniform=false,teacher=null,raise=false,black=false,alarm=false,deathId=null,fallT=0,shelfT=0,clockT=0,boomT=0,hugD=0,girl=false,colOpen=false,lastMode=null,wake=0,showStart=false,shake=0;
 const P={x:18,y:44,dir:'down',step:0,lying:true};
@@ -105,9 +133,17 @@ function deathSeq(id){mode='cut';P.step=0;
  meteor:[L('플레이어','드디어 학교다!!!'),F(()=>{fx={t:'meteor',k:0};beep(80,.6)}),W(.7),F(()=>{shake=.7;P.lying=true}),N('(쿠쿠쿵)'),N('(교문 앞에서 운석 맞아 사망)')],
  nowake:[L('플레이어','으.... 일어나야 하는데...'),L('플레이어','모...몸이.... 안 움직여.....'),F(()=>{black=true;beep(120,.3)}),N('(일어나지 못해 사망)')],eardrum:[L('플레이어','으아아악!! 알람 소리가 너무 커!!!'),F(()=>{alarm=false;beep(1400,.5)}),N('(펑)'),F(()=>black=true),N('(고막이 터져 사망)')],pigeon:[L('플레이어','구구구~ 귀엽네'),F(()=>{fx={t:'pigeon',k:0};beep(700,.1)}),N('(비둘기 떼가 일제히 날아오름)'),F(()=>P.lying=true),N('(비둘기 떼에 휩쓸려 사망)')],
  rug:[F(()=>{P.lying=true;shake=.3}),N('(카펫에 미끄러져 사망했다)')],
+ friend:[L('플레이어','아.... 미... 미안해...'),L('친구','아 이런 찐따##가'),F(()=>{fx={t:'slap',k:0};shake=.4;beep(1500,.06)}),W(.4),F(()=>P.lying=true),N('(친구에게 싸다구 맞아서 턱주가리 나가서 사망)')],
+ ball:[F(()=>{fx={t:'slap',k:0,ball:1};shake=.4;beep(200,.15)}),W(.3),F(()=>P.lying=true),N('(축구공에 턱주가리 나가서 사망)')],
+ swing:[F(()=>{P.x=83;P.y=89;P.dir='down'}),L('플레이어','등교 너무 힘들다.... 그네나 타면서 쉬어야지....'),F(()=>fx={t:'zzz',k:0}),N('(그네에서 잠든다)'),F(()=>{fx=null;teacher={x:76,y:99}}),L('선생님','안녕?'),L('플레이어','어... 안녕하세요?'),L('선생님','등교는 하긴했네?'),L('플레이어','네.....'),L('선생님','내가 그네 태워줄게.'),F(()=>{fx={t:'swingfly',k:0};beep(500,.3)}),W(2.2),F(()=>{fx=null;P.lying=true;shake=.6;beep(90,.4)}),N('(그네로 인해 하늘로 날아간 다음 추락사)')],
+ slide:[L('플레이어','오랜만에 미끄럼틀 타 볼까?'),F(()=>{fx={t:'slide',k:0};beep(600,.2)}),W(1),N('(미끄럼틀을 탄다)'),F(()=>{P.x=14;P.y=99;P.dir='down';fx={t:'sink',k:0};shake=.8;beep(70,.6)}),W(1.4),N('(몸무게가 너무 나가서 땅바닥까지 뚫고 내려가 사망)')],
+ bar:[F(()=>{P.x=84;P.y=78;P.dir='up'}),L('플레이어','아 내가 왕년에 턱걸이 좀 했지'),L('플레이어','오랜만에 해볼까?'),F(()=>fx={t:'bar',k:0}),L('플레이어','으...으... 으아악!!!!'),F(()=>{fx=null;P.lying=true;shake=.3;beep(110,.4)}),N('(턱걸이 하나도 못하고 근육통으로 사망)')],
+ hoop:[F(()=>{fx={t:'hoop',k:0};beep(160,.3)}),W(.6),F(()=>{shake=.5;P.lying=true}),N('(농구대 골대가 떨어져서 사망)')],
+ ptree:[W(.7),F(()=>{shake=.5;P.lying=true}),N('(나무가 쓰러져서 사망)')],
  window:[L('플레이어','우리집은 1층'),L('플레이어','심지어 창문 쪽으로 가면 학교는 직진,'),L('플레이어','즉, 엄청 빠른 지름길이 있는 셈이지.'),L('플레이어','가자!!!!'),N('(잠시만......)'),L('플레이어','어.... 우리집 1층에서 15층으로 이사했지?'),L('플레이어','으악!!!!!'),F(()=>{P.y=-50;shake=.5}),N('(창문에서 떨어져 사망)')]};
  say(S[id],()=>die(id))}
-function goodEnd(){if(bunny){deathSeq('bunny');return}mode='cut';say([F(()=>{scene='gate';P.lying=false;P.x=45;P.y=92;P.dir='up';teacher={x:45,y:66}}),W(1)],()=>{mode='clear'})}
+function goodEnd(){if(bunny){deathSeq('bunny');return}mode='cut';say([F(()=>{scene='gate';P.lying=false;P.x=45;P.y=92;P.dir='up';teacher={x:45,y:66}}),W(1)],()=>goPlayground())}
+function pgClear(){mode='cut';P.dir='up';beep(660,.15);say([W(.6)],()=>{mode='clear'})}
 // ===== input =====
 const keys={};let joy={on:false,id:null,cx:70,cy:560,dx:0,dy:0};
 const btnA={x:300,y:560,r:30},btnB={x:236,y:592,r:24},btnCol={x:236,y:530,r:19},btnRe=[110,250,140,44],btnRcol=[110,306,140,40],btnT1=[100,330,160,48],btnT2=[100,396,160,44];
@@ -123,6 +159,7 @@ function B(){if(colOpen)colOpen=false}
 function near(r,m){const b=box();return b[0]<r[0]+r[2]+m&&b[0]+b[2]>r[0]-m&&b[1]<r[1]+r[3]+m&&b[1]+b[3]>r[1]-m}
 function interact(){
  if(scene==='outside'){if(near(OBENCH,3)){deathSeq('bench');return}if(near(OLAKE,3)){deathSeq('lake');return}if(near(OSTORE,3)){deathSeq('store');return}return}
+ if(scene==='pg'){if(near(PSWING,3)){deathSeq('swing');return}if(near(PSAND,3)){deathSeq('slide');return}if(near(PBARS,3)){deathSeq('bar');return}return}
  if(scene==='living'){
   if((near(LSLIP,2)||near(LSNEAK,2))&&P.x<47){deathSeq('slipper');return}
   if(near(LSNEAK,2)){if(!uniform)deathSeq('uniform');else if(bunny)deathSeq('bunny');else goOutside();return}
@@ -161,10 +198,11 @@ cv.addEventListener('mousedown',e=>down(cp(e),'m'));addEventListener('mousemove'
 // ===== update =====
 function box(x=P.x,y=P.y){return[x-2,y-2,4,3]} // feet box, grid units; P = feet center
 const ov=(a,b)=>a[0]<b[0]+b[2]&&a[0]+a[2]>b[0]&&a[1]<b[1]+b[3]&&a[1]+a[3]>b[1];
-function blocked(x,y){const b=box(x,y);return (scene==='living'?LWALLS:scene==='outside'?OWALLS:WALLS).some(w=>ov(b,w))}
+function blocked(x,y){const b=box(x,y);return (scene==='living'?LWALLS:scene==='outside'?OWALLS:scene==='pg'?PWALLS:WALLS).some(w=>ov(b,w))}
 function update(dt){gt+=dt;if(shake>0)shake-=dt;if(fallT)fallT+=dt;if(shelfT)shelfT+=dt;if(clockT)clockT+=dt;if(boomT)boomT+=dt;if(fx)fx.k+=dt;
  if(wake){wake+=dt;if(wake>.8){wake=0;P.lying=false;P.x=19;P.y=68;P.dir='down'}else return}
  if(cur&&cur.wait!==undefined){cur.wait-=dt;if(cur.wait<=0)next();return}
+ if(scene==='pg'&&mode==='play'&&!cur&&!colOpen&&!P.lying){pgUpdate(dt);if(pgHits())return}
  if(mode!=='play'||cur||colOpen||P.lying)return;
  if(scene==='living'){roach.t-=dt;if(roach.t<=0){roach.a=Math.random()*7;roach.t=.4+Math.random()*1.2}const nx=roach.x+Math.cos(roach.a)*14*dt,ny=roach.y+Math.sin(roach.a)*14*dt,rb=[nx-1,ny-1,2,2];if(nx<20||nx>80||ny<84||ny>138||LWALLS.some(w=>ov(rb,w)))roach.t=0;else{roach.x=nx;roach.y=ny}if(Math.hypot(P.x-roach.x,P.y-roach.y)<6){deathSeq('roach');return}}
  if(scene==='outside'){rollT+=dt;while(rollT>=1){rollT-=1;if(Math.random()<.001){deathSeq('bolt');return}if(onGrass(P.x,P.y)&&Math.random()<.05){deathSeq('ant');return}}}
@@ -177,6 +215,7 @@ function update(dt){gt+=dt;if(shake>0)shake-=dt;if(fallT)fallT+=dt;if(shelfT)she
  checkZones()}
 function goLiving(){scene='living';P.x=45;P.y=26;P.dir='down';hugD=0}
 function checkZones(){const b=box();
+ if(scene==='pg'){if(ov(b,PENT)&&P.x>=38&&P.x<=55){pgClear();return}if(near(PHOOP,1.5)){deathSeq('hoop');return}const tr=PTREES.find(t=>near(t,2));if(tr){fx={t:'tree',k:0,tr:[tr[0],tr[1]-3]};deathSeq('ptree');fx={t:'tree',k:0,tr:[tr[0],tr[1]-3]};return}if(pgHits())return;return}
  if(scene==='outside'){const nr=(r,m)=>near(r,m);
   if(P.y>=290&&P.x>=32&&P.x<=58){goodEnd();return}
   if(P.y>=286&&P.x>=32&&P.x<=58){if(!meteorRolled){meteorRolled=true;if(Math.random()<.1){deathSeq('meteor');return}}}else if(P.y<284)meteorRolled=false;
@@ -221,6 +260,7 @@ function drawGate(oy){const r=(a,b,w,h,c)=>R(a*4,oy+b*4,w*4,h*4,c);
  r(18,30,6,22,'#a8a8b0');r(66,30,6,22,'#a8a8b0');r(17,28,8,3,'#88889a');r(65,28,8,3,'#88889a');r(24,32,42,3,'#5a5a6a');T('',0,0,1,'#000');
  for(let x=26;x<66;x+=4)r(x,35,1,14,'#5a5a6a');r(19,36,4,6,'#e8e0c0');r(20,37,2,1,'#333');r(20,39,2,1,'#333');
  r(8,52,74,1,'#ffffff55')}
+function drawFriend(f,oy){const x=f.x*4,y=oy+f.y*4,c=f.t?'#3a6ad0':'#d83a3a',st=Math.floor(f.step)%2;R(x-7,y+1,14,3,'rgba(0,0,0,.25)');R(x-5,y-6,4,7-(st?2:0),'#2a2a3a');R(x+1,y-6,4,7-(st?0:2),'#2a2a3a');R(x-7,y-18,14,12,c);R(x-6,y-28,12,10,'#f0c8a0');R(x-6,y-29,12,4,'#2a2018');if(f.dir!=='up'){R(x-4+(f.dir==='right'?2:f.dir==='left'?-2:0),y-24,2,2,'#222');R(x+2+(f.dir==='right'?2:f.dir==='left'?-2:0),y-24,2,2,'#222')}else R(x-6,y-28,12,6,'#2a2018')}
 function drawWorld(){const VH=440;let oy=0,cam=0;
  if(scene==='outside'){cam=Math.max(0,Math.min(1280-VH,P.y*4-220));oy=-cam;ctx.save();ctx.beginPath();ctx.rect(0,0,360,VH);ctx.clip();
   if(shake>0)ctx.translate((Math.random()-.5)*8,(Math.random()-.5)*8);
@@ -269,6 +309,25 @@ function drawWorld(){const VH=440;let oy=0,cam=0;
   if(shelfT>.6){const C=['#c84848','#4878c8','#e0c040','#48a868'];for(let i=0;i<6;i++)R((P.x-6+i*2)*4,oy+(P.y-4-(i%2)*2)*4,14,7,C[i%4])}
   if(teacher)drawTeacher(0,oy,teacher.x,teacher.y,raise);
   ctx.restore()}
+ else if(scene==='pg'){cam=Math.max(0,Math.min(480-VH,P.y*4-240));oy=-cam;ctx.save();ctx.beginPath();ctx.rect(0,0,360,VH);ctx.clip();
+  if(shake>0)ctx.translate((Math.random()-.5)*8,(Math.random()-.5)*8);
+  ctx.imageSmoothingEnabled=false;if(IMG.pg.complete)ctx.drawImage(IMG.pg,0,oy,360,480);
+  const B=pg.ball,dr=[];for(const f of pg.fr)dr.push([f.y,()=>drawFriend(f,oy)]);dr.push([B.y,()=>{const bx=B.x*4,by=oy+B.y*4;R(bx-5,by+3,10,3,'rgba(0,0,0,.25)');ctx.fillStyle='#fff';ctx.beginPath();ctx.arc(bx,by,5,0,7);ctx.fill();R(bx-2,by-2,3,3,'#222')}]);
+  const k=fx?fx.k:0,px=P.x*4,py=oy+P.y*4;
+  dr.push([P.y-.5,()=>{if(fx&&fx.t==='swingfly'){const u=Math.min(1,k/2),ty=P.y;const sw=Math.sin(k*9)*Math.max(0,1-k*2)*3;P.y=ty-(u<.5?Math.pow(u*2,2)*140:Math.pow((1-u)*2,2)*140)+sw;P.x+=Math.sin(k*3)*0;drawPlayer(0,oy,4);P.y=ty;if(u<.5)T('슝~',px+20,oy+P.y*4-40-u*200,14,'#fff','center')}
+   else if(fx&&fx.t==='sink'){const d=Math.min(1,k*1.2)*40;ctx.fillStyle='#3a2a1a';ctx.beginPath();ctx.ellipse(px,py,14,5,0,0,7);ctx.fill();ctx.save();ctx.beginPath();ctx.rect(0,-1000,360,py+1000-oy+oy+2);ctx.clip();const ty=P.y;P.y+=d/4;drawPlayer(0,oy,4);P.y=ty;ctx.restore();for(let i=0;i<6;i++)R(px-16+i*6,py-4-((k*40+i*7)%16),3,3,'#8a6a40')}
+   else if(fx&&fx.t==='slide'){const tx=P.x,ty=P.y,u=Math.min(1,k);P.x=4+u*10;P.y=86+u*12;drawPlayer(0,oy,4);if(u>=1){}P.x=tx;P.y=ty}
+   else if(fx&&fx.t==='bar'){const ty=P.y;P.y-=2+Math.abs(Math.sin(gt*20))*.6;drawPlayer(0,oy,4);P.y=ty;R(px-10,py-50,20,3,'#c0c0c8')}
+   else drawPlayer(0,oy,4)}]);
+  dr.sort((a,b)=>a[0]-b[0]).forEach(d=>d[1]());
+  if(fx){const t=fx.t;
+   if(t==='tree'){const [tx,ty]=fx.tr,bx=(tx+4.5)*4,by=oy+(ty+14)*4;const ang=Math.atan2(py-16-by,px-bx)+Math.PI/2,L=Math.max(40,Math.hypot(px-bx,py-16-by));ctx.save();ctx.translate(bx,by);ctx.rotate(ang*Math.min(1,k*1.5));R(-6,-L*.6,12,L*.6,'#7a5434');R(-18,-L-18,36,36,'#2e7a3a');R(-14,-L-14,16,12,'#4aa05a');ctx.restore()}
+   if(t==='hoop'){const u=Math.min(1,k*2);R(px-18,oy+120+(py-30-oy-120)*u*u,36,22,'#fff');ctx.strokeStyle='#e06020';ctx.lineWidth=3;ctx.beginPath();ctx.ellipse(px,oy+148+(py-30-oy-120)*u*u,9,4,0,0,7);ctx.stroke()}
+   if(t==='slap'){if(k<.6){T(fx.ball?'퍽!':'짝!',px+18,py-48,22,'#ffd84d','center');ctx.strokeStyle='#ffd84d';ctx.lineWidth=2;for(let i=0;i<6;i++){const a=i*1.05;ctx.beginPath();ctx.moveTo(px+Math.cos(a)*14,py-24+Math.sin(a)*14);ctx.lineTo(px+Math.cos(a)*24,py-24+Math.sin(a)*24);ctx.stroke()}}}
+   if(t==='zzz')T('Z z z',px+16,py-44-(k*10%10),14,'#fff','center')}
+  if(pg.goal>0)T('골!!!',180,oy+200,30,'#ffd84d','center');
+  if(teacher)drawTeacher(0,oy,teacher.x,teacher.y,raise);
+  ctx.restore()}
  else{ctx.save();if(shake>0)ctx.translate((Math.random()-.5)*8,(Math.random()-.5)*8);drawGate(0);if(teacher)drawTeacher(0,0,teacher.x,teacher.y,raise);drawPlayer(0,0,4);ctx.restore()}
  if(black)R(0,0,360,440,'#000')}
 function wrapText(s,w,sz){ctx.font='bold '+sz+'px sans-serif';const out=[];let line='';for(const ch of s){if(ctx.measureText(line+ch).width>w){out.push(line);line=ch}else line+=ch}if(line)out.push(line);return out}
@@ -301,11 +360,11 @@ function draw(){R(0,0,360,640,'#000');
  drawWorld();drawDialog();
  if(mode==='dead'||mode==='clear'){R(0,0,360,440,'rgba(0,0,0,.72)');
   if(mode==='dead'){T('사망 엔딩',180,120,16,'#e04848','center');const e=ENDS.find(x=>x.id===deathId);wrapText(e.n,300,20).forEach((l,i)=>T(l,180,168+i*28,20,'#fff','center'));T('모음집 '+Object.keys(seen).length+'/'+ENDS.length,180,226,13,'#ffd84d','center')}
-  else{T('교문 도착!',180,130,22,'#ffd84d','center');T('다음 편에 계속',180,180,26,'#fff','center')}
+  else{T(scene==='pg'?'등교 성공!':'교문 도착!',180,130,22,'#ffd84d','center');T('다음 편에 계속',180,180,26,'#fff','center')}
   R(...btnRe,'#ffd84d');T('다시 하기',180,272,17,'#000','center');R(...btnRcol,'#8a6a3a');T('모음집',180,326,15,'#fff','center')}
  drawControls();if(colOpen)drawCollection()}
 let last=performance.now();function loop(t){const dt=Math.min(.05,(t-last)/1000);last=t;update(dt);draw();requestAnimationFrame(loop)}requestAnimationFrame(loop);
-window.__school={get mode(){return mode},get scene(){return scene},P,get cur(){return cur},get seen(){return seen},get uniform(){return uniform},ENDS,A,B,toggleCol,opening,deathSeq,goLiving,goOutside,get green(){return green()},get gt(){return gt},get fx(){return fx},get hugD(){return hugD},
+window.__school={get mode(){return mode},get scene(){return scene},P,get cur(){return cur},get seen(){return seen},get uniform(){return uniform},ENDS,A,B,toggleCol,opening,deathSeq,goLiving,goOutside,goPlayground,goodEnd,get pg(){return pg},get green(){return green()},get gt(){return gt},get fx(){return fx},get hugD(){return hugD},
  skip(){let i=0;while(cur&&i++<200){if(cur.wait!==undefined){cur.wait=0;next()}else next()}if(wake){wake=0;P.lying=false;P.x=19;P.y=68}},
  tp(x,y){P.x=x;P.y=y;checkZones()},setRaise(v){raise=v}};
 </script></body></html>

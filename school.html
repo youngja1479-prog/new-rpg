@@ -47,7 +47,7 @@ for(const [k,f] of [['outside','data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAW
 const OTREES=[[8,118],[70,120],[4,154],[2,160],[6,272],[70,274]].map(([x,y])=>[x,y,9,14]);
 const OWALLS=[[0,0,2,320],[88,0,2,320],[16,0,58,24],[7,30,14,12],[2,87,30,27],[58,76,32,38],[56,134,34,30],[6,140,16,8],[2,204,28,24],[60,204,28,24],[2,240,28,24],[60,240,28,24],[26,274,6,6],[0,292,32,28],[58,292,32,28],[20,146,13,18],[26,220,9,25],[55,40,4,14],[55,156,4,14],[50,110,8,5],...OTREES];
 const ODOG=[22,38,6,5],OROADS=[[56,78],[172,194]],OPIGEON=[[39,95],[43,99],[38,103],[42,107]],OCONS=[58,76,32,38],OLAKE=[56,134,34,30],OBENCH=[6,140,16,8],OHOLE=[42,146,6,4],OLIGHTS=[[55,40,4,14],[55,156,4,14]],OSTORE=[2,87,30,27],OTRASH=[26,274,6,6],OKANG=[20,146,13,18],OGIRL=[26,220,9,25];
-let fx=null,wasRoad=false,pigNear=false,meteorRolled=false,rollT=0,bunny=false,dolph=false,roach={x:62,y:130,a:0,t:0};const green=()=>Math.floor(gt/3)%2===0;
+let fx=null,wasRoad=false,pigNear=false,meteorRolled=false,rollT=0,bunny=false,roach={x:62,y:130,a:0,t:0};const green=()=>Math.floor(gt/3)%2===0;
 function goOutside(){scene='outside';P.x=45;P.y=26;P.dir='down';P.lying=false;wasRoad=false;pigNear=false;meteorRolled=false;rollT=0;fx=null;mode='play'}
 const GRASS=document.createElement('canvas');let GD=null;function onGrass(x,y){if(!GD){if(!IMG.outside.complete)return false;GRASS.width=360;GRASS.height=1280;const g=GRASS.getContext('2d');g.drawImage(IMG.outside,0,0);GD=g.getImageData(0,0,360,1280).data}const i=((Math.round(y*4)-2)*360+Math.round(x*4))*4;const r=GD[i],gg=GD[i+1],b=GD[i+2];return gg>r+40&&gg>b+40}
 // ===== endings (names = script death lines) =====
@@ -119,7 +119,7 @@ let queue=[],cur=null,onEnd=null;
 function say(list,end){queue=list.slice();onEnd=end||null;next()}
 function next(){cur=queue.shift()||null;if(cur&&cur.fn){const f=cur.fn;f();if(cur&&cur.fn===f){if(cur.wait===undefined)next()}}if(!cur&&onEnd){const f=onEnd;onEnd=null;f()}}
 const L=(s,t)=>({s,t}),N=t=>({t}),F=fn=>({fn}),W=(w,fn)=>({wait:w,fn:fn||null});
-function reset(){scene='room';uniform=false;teacher=null;raise=false;black=false;alarm=false;deathId=null;fallT=0;shelfT=0;clockT=0;boomT=0;hugD=0;girl=false;fx=null;wasRoad=false;bunny=false;dolph=false;pigNear=false;meteorRolled=false;roach={x:62,y:130,a:0,t:0};P.x=18;P.y=44;P.dir='down';P.lying=true;wake=0;showStart=false}
+function reset(){scene='room';uniform=false;teacher=null;raise=false;black=false;alarm=false;deathId=null;fallT=0;shelfT=0;clockT=0;boomT=0;hugD=0;girl=false;fx=null;wasRoad=false;bunny=false;pigNear=false;meteorRolled=false;roach={x:62,y:130,a:0,t:0};P.x=18;P.y=44;P.dir='down';P.lying=true;wake=0;showStart=false}
 function opening(){reset();mode='play';alarm=true;beep(880,.2);
  if(Math.random()<.05){say([N('(알람이 울린다)')],()=>deathSeq('eardrum'));return}
  say([N('(알람이 울린다)'),L('플레이어','(알람을 끄며)'),F(()=>alarm=false),L('플레이어','아.... 등교하기 싫다.'),L('플레이어','등교하는 날은 기분도 우울하고, 정신이 나갈 것 같고, 그냥 몸이 아파,'),L('플레이어','몸이 조각날 것 같아.'),L('플레이어','나는 현실에 사는 게 맞을까? 학교 가는 날이면 내 몸이 학교를 가는 건지. 내 영혼이 학교를 가는 건지 모르겠다......'),L('플레이어','일단 학교 가라니까 가야지.'),{t:'시작',big:1}],()=>{if(Math.random()<.05)deathSeq('nowake');else wake=0.001})}
@@ -200,7 +200,7 @@ function interact(){
  if(near([8,24,22,40],3)){deathSeq('bed');return}
  if(near([6,80,10,30],3)){deathSeq('shelf');return}
  if(P.y<=31&&P.x>=33&&P.x<=58){deathSeq('window');return}
- if(near([72,64,12,30],3)){if(!uniform){uniform=true;beep(660,.1);const cr=Math.random();if(cr<.1){bunny=true;say([N('(옷장을 열었다. 교복... 이 아니라 바니걸 복장을 입었다?!)')])}else if(cr<.2){dolph=true;say([N('(옷장을 열었다. 교복... 이 아니라 돌핀팬츠를 입었다?!)')])}else say([N('(옷장을 열었다. 교복을 입었다.)')])}else if(!bunny){bunny=true;dolph=false;beep(660,.1);say([N('(옷장을 다시 열었다. 교복을 벗고 바니걸 복장으로 갈아입었다?!)')])}else say([N('(옷장)')]);return}}
+ if(near([72,64,12,30],3)){if(!uniform){uniform=true;beep(660,.1);if(Math.random()<.1){bunny=true;say([N('(옷장을 열었다. 교복... 이 아니라 바니걸 복장을 입었다?!)')])}else say([N('(옷장을 열었다. 교복을 입었다.)')])}else if(!bunny){bunny=true;beep(660,.1);say([N('(옷장을 다시 열었다. 교복을 벗고 바니걸 복장으로 갈아입었다?!)')])}else say([N('(옷장)')]);return}}
 addEventListener('keydown',e=>{const k=e.key;keys[k.toLowerCase()]=true;
  if(k==='z'||k==='Z'||k==='Enter'||k===' '){A();e.preventDefault()}else if(k==='x'||k==='X'||k==='Escape'){B();e.preventDefault()}else if(k==='c'||k==='C')toggleCol();
  if(cur&&cur.choice&&/^(arrowup|arrowdown|w|s)$/.test(k.toLowerCase()))cur.sel=1-cur.sel;
@@ -270,7 +270,7 @@ function drawPlayer(ox,oy,s){const x=ox+P.x*s,y=oy+P.y*s,q=s/4;const r=(a,b,w,h,
  if(P.lying){r(-14,-10,28,10,'#00000033');r(-14,-12,8,8,'#f0c8a0');r(-14,-13,8,3,'#3a2414');r(-6,-11,16,7,uniform?'#2a3a6a':'#e8e8e8');r(10,-10,6,5,'#555');return}
  const st=Math.floor(P.step)%2;
  r(-7,-2,14,4,'#00000033');r(-5,-8,4,8-(st?2:0),'#333');r(1,-8,4,8-(st?0:2),'#333');
- if(dolph&&!bunny){r(-5,-8,4,8-(st?2:0),'#f0c8a0');r(1,-8,4,8-(st?0:2),'#f0c8a0');r(-7,-20,14,9,'#f4f4f4');r(-6,-11,12,4,'#ff4f9a');r(-6,-11,1,4,'#fff');r(5,-11,1,4,'#fff')}else if(bunny){r(-5,-8,4,8-(st?2:0),'#2a2a34');r(1,-8,4,8-(st?0:2),'#2a2a34');r(-6,-20,12,13,'#1a1a22');r(-7,-20,14,2,'#f0c8a0');r(-2,-19,4,2,'#e04060');r(5,-10,3,3,'#fff')}else{r(-7,-20,14,13,uniform?'#2a3a6a':'#e8e8e8');if(uniform){r(-1,-19,2,8,'#c33')}}r(-9,-19,2,9,'#f0c8a0');r(7,-19,2,9,'#f0c8a0');
+ if(bunny){r(-5,-8,4,8-(st?2:0),'#2a2a34');r(1,-8,4,8-(st?0:2),'#2a2a34');r(-6,-20,12,13,'#1a1a22');r(-7,-20,14,2,'#f0c8a0');r(-2,-19,4,2,'#e04060');r(5,-10,3,3,'#fff')}else{r(-7,-20,14,13,uniform?'#2a3a6a':'#e8e8e8');if(uniform){r(-1,-19,2,8,'#c33')}}r(-9,-19,2,9,'#f0c8a0');r(7,-19,2,9,'#f0c8a0');
  r(-6,-32,12,12,'#f0c8a0');r(-7,-34,14,5,'#3a2414');if(bunny){r(-5,-44,3,11,'#1a1a22');r(2,-44,3,11,'#1a1a22');r(-4,-42,1,7,'#f0a0b0');r(3,-42,1,7,'#f0a0b0')}
  if(P.dir==='down'){r(-3,-26,2,2,'#000');r(1,-26,2,2,'#000')}else if(P.dir==='left')r(-5,-26,2,2,'#000');else if(P.dir==='right')r(3,-26,2,2,'#000');else r(-6,-31,12,6,'#3a2414')}
 // shared teacher sprite (grid units x4). raise = cane raised frame

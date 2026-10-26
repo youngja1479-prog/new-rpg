@@ -246,7 +246,7 @@ function checkZones(){const b=box();
  if(scene==='pg'){if(ov(b,PENT)&&P.x>=38&&P.x<=55){pgClear();return}if(near(PHOOP,1.5)){deathSeq('hoop');return}const tr=PTREES.find(t=>near(t,2));if(tr){fx={t:'tree',k:0,tr:[tr[0],tr[1]-3]};deathSeq('ptree');fx={t:'tree',k:0,tr:[tr[0],tr[1]-3]};return}if(pgHits())return;return}
  if(scene==='outside'){const nr=(r,m)=>near(r,m);
   if(P.y>=290&&P.x>=32&&P.x<=58){goodEnd();return}
-  if(P.y>=286&&P.x>=32&&P.x<=58){if(!meteorRolled){meteorRolled=true;if(Math.random()<.1){deathSeq('meteor');return}}}else if(P.y<284)meteorRolled=false;
+  if(P.y>=286&&P.x>=32&&P.x<=58){if(!meteorRolled){meteorRolled=true;if(Math.random()<.03){deathSeq('meteor');return}}}else if(P.y<284)meteorRolled=false;
   const pn=OPIGEON.some(([x,y])=>Math.hypot(P.x-x,P.y-y)<4);if(pn){deathSeq('pigeon');return}
   if(ov(b,OHOLE)){deathSeq('hole');return}
   const onRoad=OROADS.some(([a,c])=>b[1]<c&&b[1]+b[3]>a);

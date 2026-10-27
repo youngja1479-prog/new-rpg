@@ -257,8 +257,8 @@ function checkZones(){const b=box();
   if(onRoad&&(b[0]<38||b[0]+b[2]>54||(!green()&&(!wasRoad||(gt%6)-3>RED_GRACE)))){fx={t:'car',k:0,y:P.y};deathSeq('car');return}
   wasRoad=onRoad;
   {const ri=OROADS.findIndex(([a,c])=>P.y>=a&&P.y<c);let ct=null;
-   if(ri>=0&&P.x>=38&&P.x<55){const v=P.y-OROADS[ri][0]-1,k=Math.floor(v/3);if(v>=0&&k<7&&v-k*3<2)ct=ri+':'+k}
-   if(ct&&ct!==cwTile){cwTile=ct;if(Math.random()<.1){deathSeq('zebra');return}}else if(!ct)cwTile=null}
+   if(ri>=0&&P.x>=38&&P.x<55){const v=P.y-OROADS[ri][0]-1,k=Math.floor(v/3);if(v>=0&&k<7&&v-k*3<2)ct='r'+ri}
+   if(ct&&ct!==cwTile){cwTile=ct;if(Math.random()<.1){deathSeq('zebra');return}}else if(ri<0)cwTile=null}
   if(nr(ODOG,2)){deathSeq('dog');return}
   const lHit=l=>l[4]?nr([l[0]+1,l[1]+3,2,l[3]-3],1.2):nr(l,1.5);if(OLIGHTS.some(lHit)){fx={t:'light',k:0,l:OLIGHTS.find(lHit)};deathSeq('light');return}
   if(OTREES.some(t=>nr(t,2))){const tr=OTREES.find(t=>nr(t,2));deathSeq('tree');fx={t:'tree',k:0,tr};return}
